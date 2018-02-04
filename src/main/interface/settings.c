@@ -34,7 +34,6 @@
 #include "drivers/adc.h"
 #include "drivers/bus_i2c.h"
 #include "drivers/bus_spi.h"
-#include "drivers/camera_control.h"
 #include "drivers/light_led.h"
 #include "drivers/pinio.h"
 #include "drivers/vtx_common.h"
@@ -74,6 +73,7 @@
 #include "pg/max7456.h"
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
+#include "pg/camera_control.h"
 #include "pg/pinio.h"
 #include "pg/piniobox.h"
 #include "pg/rx.h"
@@ -247,9 +247,7 @@ static const char * const lookupTableGyro32khzHardwareLpf[] = {
 
 #ifdef USE_CAMERA_CONTROL
 static const char * const lookupTableCameraControlMode[] = {
-    "HARDWARE_PWM",
-    "SOFTWARE_PWM",
-    "DAC"
+    "HARDWARE_PWM"
 };
 #endif
 
