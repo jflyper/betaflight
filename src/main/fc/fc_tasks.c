@@ -65,7 +65,6 @@
 #include "io/gps.h"
 #include "io/ledstrip.h"
 #include "io/osd.h"
-#include "io/osd_slave.h"
 #include "io/piniobox.h"
 #include "io/serial.h"
 #include "io/transponder_ir.h"
@@ -265,7 +264,7 @@ void fcTasksInit(void)
 #endif
 
 #ifdef USE_OSD_SLAVE
-    setTaskEnabled(TASK_OSD_SLAVE, true);
+    setTaskEnabled(TASK_OSD_SLAVE, osdSlaveInitialized());
 #else
     if (sensors(SENSOR_GYRO)) {
         rescheduleTask(TASK_GYROPID, gyro.targetLooptime);
@@ -319,7 +318,7 @@ void fcTasksInit(void)
     setTaskEnabled(TASK_TRANSPONDER, feature(FEATURE_TRANSPONDER));
 #endif
 #ifdef USE_OSD
-    setTaskEnabled(TASK_OSD, feature(FEATURE_OSD));
+    setTaskEnabled(TASK_OSD, feature(FEATURE_OSD) && osdInitialized());
 #endif
 #ifdef USE_BST
     setTaskEnabled(TASK_BST_MASTER_PROCESS, true);
