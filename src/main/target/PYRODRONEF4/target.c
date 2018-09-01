@@ -29,9 +29,14 @@ const timerHardware_t timerHardware[USABLE_TIMER_CHANNEL_COUNT] = {
 
     DEF_TIM(TIM11, CH1,  PB9, TIM_USE_CAMERA_CONTROL, 0, 0), // CAMERA_CONTROL_PIN
 
-    DEF_TIM(TIM3,  CH4,  PB1, TIM_USE_MOTOR,           0, 0),  // M1_OUT - D1_ST2_CH5
+    DEF_TIM(TIM8,  CH3N, PB1, TIM_USE_MOTOR,           0, 0),  // M1_OUT - D(2,2)
     DEF_TIM(TIM8,  CH2N, PB0, TIM_USE_MOTOR,           0, 0),  // M2_OUT - D2_ST3_CH7
     DEF_TIM(TIM8,  CH4,  PC9, TIM_USE_MOTOR,           0, 0),  // M3_OUT - D2_ST7_CH7
     DEF_TIM(TIM1,  CH1,  PA8, TIM_USE_MOTOR,           0, 1),  // M4_OUT - D2_ST1_CH6
     DEF_TIM(TIM4,  CH3,  PB8, TIM_USE_LED ,            0,  0)    // LED & MOTOR5 D1_ST7_CH2
+
+    DEF_TIM(TIM2,  CH3,  PB10,TIM_USE_NONE,            0, 0),  // TX3 backdoor - xD(1,5)
+    DEF_TIM(TIM2,  CH4,  PB11,TIM_USE_NONE,            0, 0),  // RX3 backdoor - D(1,6)
+    DEF_TIM(TIM3,  CH1,  PC6, TIM_USE_NONE,            0, 0),  // TX6 backdoor - D(1,4)
+    DEF_TIM(TIM3,  CH2,  PC7, TIM_USE_NONE,            0, 0),  // RX6 backdoor - D(1,5)
 };
