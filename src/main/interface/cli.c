@@ -4062,6 +4062,7 @@ static void cliResource(char *cmdline)
     cliShowParseError();
 }
 
+#ifdef USE_DMA
 static void printDma(void)
 {
     cliPrintLinefeed();
@@ -4091,6 +4092,7 @@ static void cliDma(char* cmdLine)
     UNUSED(cmdLine);
     printDma();
 }
+#endif // USE_DMA
 #endif /* USE_RESOURCE_MGMT */
 
 #ifdef USE_TIMER_MGMT
@@ -4450,7 +4452,7 @@ const clicmd_t cmdTable[] = {
 #endif
     CLI_COMMAND_DEF("defaults", "reset to defaults and reboot", "[nosave]", cliDefaults),
     CLI_COMMAND_DEF("diff", "list configuration changes from default", "[master|profile|rates|all] {defaults}", cliDiff),
-#ifdef USE_RESOURCE_MGMT
+#if defined(USE_RESOURCE_MGMT) && defined(USE_DMA)
     CLI_COMMAND_DEF("dma", "list dma utilisation", NULL, cliDma),
 #endif
 #ifdef USE_DSHOT
