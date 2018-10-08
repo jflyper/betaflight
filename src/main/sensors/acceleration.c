@@ -84,20 +84,10 @@
 
 FAST_RAM_ZERO_INIT acc_t acc;                       // acc access functions
 
-static float accumulatedMeasurements[XYZ_AXIS_COUNT];
-static int accumulatedMeasurementCount;
-
-static uint16_t calibratingA = 0;      // the calibration is done is the main loop. Calibrating decreases at each cycle down to 0, then we enter in a normal mode.
-
 extern uint16_t InflightcalibratingA;
 extern bool AccInflightCalibrationMeasurementDone;
 extern bool AccInflightCalibrationSavetoEEProm;
 extern bool AccInflightCalibrationActive;
-
-static flightDynamicsTrims_t *accelerationTrims;
-
-static uint16_t accLpfCutHz = 0;
-static biquadFilter_t accFilter[XYZ_AXIS_COUNT];
 
 PG_REGISTER_WITH_RESET_FN(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG, 0);
 
@@ -137,6 +127,18 @@ void pgResetFn_accelerometerConfig(accelerometerConfig_t *instance)
     resetRollAndPitchTrims(&instance->accelerometerTrims);
     resetFlightDynamicsTrims(&instance->accZero);
 }
+
+#ifdef USE_ACC
+
+static float accumulatedMeasurements[XYZ_AXIS_COUNT];
+static int accumulatedMeasurementCount;
+
+static uint16_t calibratingA = 0;      // the calibration is done is the main loop. Calibrating decreases at each cycle down to 0, then we enter in a normal mode.
+
+static flightDynamicsTrims_t *accelerationTrims;
+
+static uint16_t accLpfCutHz = 0;
+static biquadFilter_t accFilter[XYZ_AXIS_COUNT];
 
 bool accDetect(accDev_t *dev, accelerationSensor_e accHardwareToUse)
 {
@@ -569,3 +571,4 @@ void accInitFilters(void)
         }
     }
 }
+#endif

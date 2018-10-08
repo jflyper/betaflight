@@ -149,10 +149,12 @@ static void taskBatteryAlerts(timeUs_t currentTimeUs)
     batteryUpdateAlarms();
 }
 
+#ifdef USE_ACC
 static void taskUpdateAccelerometer(timeUs_t currentTimeUs)
 {
     accUpdate(currentTimeUs, &accelerometerConfigMutable()->accelerometerTrims);
 }
+#endif
 
 static void taskUpdateRxMain(timeUs_t currentTimeUs)
 {
@@ -416,12 +418,14 @@ cfTask_t cfTasks[TASK_COUNT] = {
         .staticPriority = TASK_PRIORITY_REALTIME,
     },
 
+#ifdef USE_ACC
     [TASK_ACCEL] = {
         .taskName = "ACC",
         .taskFunc = taskUpdateAccelerometer,
         .desiredPeriod = TASK_PERIOD_HZ(1000),      // 1000Hz, every 1ms
         .staticPriority = TASK_PRIORITY_MEDIUM,
     },
+#endif
 
     [TASK_ATTITUDE] = {
         .taskName = "ATTITUDE",

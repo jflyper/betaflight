@@ -131,8 +131,10 @@ static void activateConfig(void)
     useAdjustmentConfig(currentPidProfile);
 
     failsafeReset();
+#ifdef USE_ACC
     setAccelerationTrims(&accelerometerConfigMutable()->accZero);
     accInitFilters();
+#endif
 
     imuConfigure(throttleCorrectionConfig()->throttle_correction_angle, throttleCorrectionConfig()->throttle_correction_value);
 
