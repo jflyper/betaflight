@@ -23,6 +23,13 @@
 #define TARGET_BOARD_IDENTIFIER "N743"
 #define USBD_PRODUCT_STRING "Nucleo-H743"
 
+#define LED0_PIN                PB0
+#define LED1_PIN                PB7
+#define LED2_PIN                PB14
+
+//#define USE_BUTTONS
+#define	BUTTON_A_PIN            PC13
+
 #undef USE_BEEPER
 #undef USE_UART
 
