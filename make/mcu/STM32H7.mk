@@ -186,6 +186,8 @@ VCP_SRC = \
 MCU_COMMON_SRC = \
             target/system_stm32h7xx.c \
             drivers/system_stm32h7xx.c \
+            drivers/serial_uart_stm32h7xx.c \
+            drivers/serial_uart_hal.c
             #drivers/accgyro/accgyro_mpu.c \
             #drivers/adc_stm32h7xx.c \
             #drivers/audio_stm32h7xx.c \
@@ -197,8 +199,6 @@ MCU_COMMON_SRC = \
             #drivers/pwm_output_dshot_hal.c \
             #drivers/timer_hal.c \
             #drivers/timer_stm32h7xx.c \
-            #drivers/serial_uart_stm32h7xx.c \
-            #drivers/serial_uart_hal.c
 
 MCU_EXCLUDES = \
             drivers/bus_i2c.c \

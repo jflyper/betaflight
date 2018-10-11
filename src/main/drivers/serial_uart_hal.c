@@ -116,6 +116,7 @@ void uartReconfigure(uartPort_t *uartPort)
     // Receive DMA or IRQ
     if (uartPort->port.mode & MODE_RX)
     {
+#ifdef USE_DMA
         if (uartPort->rxDMAStream)
         {
             uartPort->rxDMAHandle.Instance = uartPort->rxDMAStream;
@@ -142,8 +143,8 @@ void uartReconfigure(uartPort_t *uartPort)
 
             uartPort->rxDMAPos = __HAL_DMA_GET_COUNTER(&uartPort->rxDMAHandle);
 
-        }
-        else
+        } else
+#endif
         {
             /* Enable the UART Parity Error Interrupt */
             SET_BIT(uartPort->USARTx->CR1, USART_CR1_PEIE);
@@ -158,7 +159,7 @@ void uartReconfigure(uartPort_t *uartPort)
 
     // Transmit DMA or IRQ
     if (uartPort->port.mode & MODE_TX) {
-
+#ifdef USE_DMA
         if (uartPort->txDMAStream) {
             uartPort->txDMAHandle.Instance = uartPort->txDMAStream;
             uartPort->txDMAHandle.Init.Channel = uartPort->txDMAChannel;
@@ -185,7 +186,10 @@ void uartReconfigure(uartPort_t *uartPort)
             __HAL_LINKDMA(&uartPort->Handle, hdmatx, uartPort->txDMAHandle);
 
             __HAL_DMA_SET_COUNTER(&uartPort->txDMAHandle, 0);
-        } else {
+        } else
+#endif
+        {
+
             /* Enable the UART Transmit Data Register Empty Interrupt */
             SET_BIT(uartPort->USARTx->CR1, USART_CR1_TXEIE);
         }
@@ -201,7 +205,9 @@ serialPort_t *uartOpen(UARTDevice_e device, serialReceiveCallbackPtr callback, v
         return (serialPort_t *)s;
     }
 
+#ifdef USE_DMA
     s->txDMAEmpty = true;
+#endif
 
     // common serial initialisation code should move to serialPort::init()
     s->port.rxBufferHead = s->port.rxBufferTail = 0;
@@ -232,6 +238,7 @@ void uartSetMode(serialPort_t *instance, portMode_e mode)
     uartReconfigure(uartPort);
 }
 
+#ifdef USE_DMA
 void uartStartTxDMA(uartPort_t *s)
 {
     uint16_t size = 0;
@@ -253,11 +260,13 @@ void uartStartTxDMA(uartPort_t *s)
     //HAL_CLEANCACHE((uint8_t *)&s->port.txBuffer[fromwhere],size);
     HAL_UART_Transmit_DMA(&s->Handle, (uint8_t *)&s->port.txBuffer[fromwhere], size);
 }
+#endif
 
 uint32_t uartTotalRxBytesWaiting(const serialPort_t *instance)
 {
     uartPort_t *s = (uartPort_t*)instance;
 
+#ifdef USE_DMA
     if (s->rxDMAStream) {
         uint32_t rxDMAHead = __HAL_DMA_GET_COUNTER(s->Handle.hdmarx);
 
@@ -267,6 +276,7 @@ uint32_t uartTotalRxBytesWaiting(const serialPort_t *instance)
             return s->port.rxBufferSize + rxDMAHead - s->rxDMAPos;
         }
     }
+#endif
 
     if (s->port.rxBufferHead >= s->port.rxBufferTail) {
         return s->port.rxBufferHead - s->port.rxBufferTail;
@@ -287,6 +297,7 @@ uint32_t uartTotalTxBytesFree(const serialPort_t *instance)
         bytesUsed = s->port.txBufferSize + s->port.txBufferHead - s->port.txBufferTail;
     }
 
+#ifdef USE_DMA
     if (s->txDMAStream) {
         /*
          * When we queue up a DMA request, we advance the Tx buffer tail before the transfer finishes, so we must add
@@ -306,6 +317,7 @@ uint32_t uartTotalTxBytesFree(const serialPort_t *instance)
             return 0;
         }
     }
+#endif
 
     return (s->port.txBufferSize - 1) - bytesUsed;
 }
@@ -313,9 +325,11 @@ uint32_t uartTotalTxBytesFree(const serialPort_t *instance)
 bool isUartTransmitBufferEmpty(const serialPort_t *instance)
 {
     const uartPort_t *s = (uartPort_t *)instance;
+#ifdef USE_DMA
     if (s->txDMAStream)
         return s->txDMAEmpty;
     else
+#endif
         return s->port.txBufferTail == s->port.txBufferHead;
 }
 
@@ -324,11 +338,14 @@ uint8_t uartRead(serialPort_t *instance)
     uint8_t ch;
     uartPort_t *s = (uartPort_t *)instance;
 
+#ifdef USE_DMA
     if (s->rxDMAStream) {
         ch = s->port.rxBuffer[s->port.rxBufferSize - s->rxDMAPos];
         if (--s->rxDMAPos == 0)
             s->rxDMAPos = s->port.rxBufferSize;
-    } else {
+    } else
+#endif
+    {
         ch = s->port.rxBuffer[s->port.rxBufferTail];
         if (s->port.rxBufferTail + 1 >= s->port.rxBufferSize) {
             s->port.rxBufferTail = 0;
@@ -350,10 +367,13 @@ void uartWrite(serialPort_t *instance, uint8_t ch)
         s->port.txBufferHead++;
     }
 
+#ifdef USE_DMA
     if (s->txDMAStream) {
         if (!(s->txDMAStream->CR & 1))
             uartStartTxDMA(s);
-    } else {
+    } else
+#endif
+    {
         __HAL_UART_ENABLE_IT(&s->Handle, UART_IT_TXE);
     }
 }

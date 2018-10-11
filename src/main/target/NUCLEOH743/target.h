@@ -23,6 +23,8 @@
 #define TARGET_BOARD_IDENTIFIER "N743"
 #define USBD_PRODUCT_STRING "Nucleo-H743"
 
+#define USE_TARGET_CONFIG
+
 #define LED0_PIN                PB0
 #define LED1_PIN                PB7
 #define LED2_PIN                PB14
@@ -31,11 +33,44 @@
 #define	BUTTON_A_PIN            PC13
 
 #undef USE_BEEPER
-#undef USE_UART
+
+#define USE_UART
+
+#define USE_UART1
+#define UART1_RX_PIN            PA10
+#define UART1_TX_PIN            PA9
+
+#define USE_UART2
+#define UART2_RX_PIN            PD6
+#define UART2_TX_PIN            PD5
+
+#define USE_UART3
+#define UART3_RX_PIN            PD9
+#define UART3_TX_PIN            PD8
+
+#define USE_UART4
+#define UART4_RX_PIN            PC11
+#define UART4_TX_PIN            PC10
+
+#define USE_UART5
+#define UART5_RX_PIN            PD2
+#define UART5_TX_PIN            PC12
+
+#define USE_UART6
+#define UART6_RX_PIN            PC7
+#define UART6_TX_PIN            PC6
+
+#define USE_UART7
+#define UART7_RX_PIN            PE7
+#define UART7_TX_PIN            PE8
+
+#define USE_UART8
+#define UART8_RX_PIN            PE0
+#define UART8_TX_PIN            PE1
 
 #define USE_VCP
 
-#define SERIAL_PORT_COUNT       1 // VCP
+#define SERIAL_PORT_COUNT       9
 
 #undef USE_BRUSHED_ESC_AUTODETECT  // Detect if brushed motors are connected and set defaults appropriately to avoid motors spinning on boot
 #undef USE_GYRO_REGISTER_DUMP  // Adds gyroregisters command to cli to dump configured register values
@@ -48,21 +83,24 @@
 #undef USE_PPM
 #undef USE_PWM
 #undef USE_UART
-#undef USE_SERIAL_RX
+#define USE_SERIAL_RX
 #undef USE_SERIALRX_CRSF       // Team Black Sheep Crossfire protocol
-#undef USE_SERIALRX_IBUS       // FlySky and Turnigy receivers
-#undef USE_SERIALRX_SBUS       // Frsky and Futaba receivers
-#undef USE_SERIALRX_SPEKTRUM   // SRXL, DSM2 and DSMX protocol
-#undef USE_SERIALRX_SUMD       // Graupner Hott protocol
-#undef USE_SERIALRX_SUMH       // Graupner legacy protocol
-#undef USE_SERIALRX_XBUS       // JR
+#define USE_SERIALRX_IBUS       // FlySky and Turnigy receivers
+#define USE_SERIALRX_SBUS       // Frsky and Futaba receivers
+#define USE_SERIALRX_SPEKTRUM   // SRXL, DSM2 and DSMX protocol
+#define USE_SERIALRX_SUMD       // Graupner Hott protocol
+#define USE_SERIALRX_SUMH       // Graupner legacy protocol
+#define USE_SERIALRX_XBUS       // JR
+#define USE_SERIALRX_FPORT
+#undef USE_SERIALRX_JETIEXBUS
+#define USE_TELEMETRY
+
 #undef USE_LED_STRIP
 
 #undef USE_ACRO_TRAINER
 #undef USE_BLACKBOX
 #undef USE_RUNAWAY_TAKEOFF     // Runaway Takeoff Prevention (anti-taz)
 #undef USE_SERVOS
-#undef USE_TELEMETRY
 #undef USE_TELEMETRY_FRSKY_HUB
 #undef USE_TELEMETRY_HOTT
 #undef USE_TELEMETRY_LTM

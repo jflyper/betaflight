@@ -58,6 +58,15 @@
 #ifndef UART_TX_BUFFER_SIZE
 #define UART_TX_BUFFER_SIZE     256
 #endif
+#elif defined(STM32H7)
+#define UARTDEV_COUNT_MAX 8
+#define UARTHARDWARE_MAX_PINS 5
+#ifndef UART_RX_BUFFER_SIZE
+#define UART_RX_BUFFER_SIZE     128
+#endif
+#ifndef UART_TX_BUFFER_SIZE
+#define UART_TX_BUFFER_SIZE     256
+#endif
 #else
 #error unknown MCU family
 #endif
@@ -116,7 +125,7 @@
 
 typedef struct uartPinDef_s {
     ioTag_t pin;
-#if defined(STM32F7)
+#if defined(STM32F7) || defined(STM32H7)
     uint8_t af;
 #endif
 } uartPinDef_t;
@@ -124,6 +133,7 @@ typedef struct uartPinDef_s {
 typedef struct uartHardware_s {
     UARTDevice_e device;    // XXX Not required for full allocation
     USART_TypeDef* reg;
+#ifdef USE_DMA
 #if defined(STM32F1) || defined(STM32F3)
     DMA_Channel_TypeDef *txDMAChannel;
     DMA_Channel_TypeDef *rxDMAChannel;
@@ -132,9 +142,10 @@ typedef struct uartHardware_s {
     DMA_Stream_TypeDef *txDMAStream;
     DMA_Stream_TypeDef *rxDMAStream;
 #endif
+#endif
     uartPinDef_t rxPins[UARTHARDWARE_MAX_PINS];
     uartPinDef_t txPins[UARTHARDWARE_MAX_PINS];
-#if defined(STM32F7)
+#if defined(STM32F7) || defined(STM32H7)
     uint32_t rcc_ahb1;
     rccPeriphTag_t rcc_apb2;
     rccPeriphTag_t rcc_apb1;
@@ -144,7 +155,7 @@ typedef struct uartHardware_s {
 #if !defined(STM32F7)
     uint8_t af;
 #endif
-#if defined(STM32F7)
+#if defined(STM32F7) || defined(STM32H7)
     uint8_t txIrq;
     uint8_t rxIrq;
 #else
