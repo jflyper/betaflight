@@ -22,6 +22,8 @@
 
 #include "resource.h"
 
+#ifdef USE_DMA // Should be gone?
+
 struct dmaChannelDescriptor_s;
 typedef void (*dmaCallbackHandlerFuncPtr)(struct dmaChannelDescriptor_s *channelDescriptor);
 
@@ -176,3 +178,4 @@ void dmaSetHandler(dmaIdentifier_e identifier, dmaCallbackHandlerFuncPtr callbac
 resourceOwner_e dmaGetOwner(dmaIdentifier_e identifier);
 uint8_t dmaGetResourceIndex(dmaIdentifier_e identifier);
 dmaChannelDescriptor_t* dmaGetDescriptorByIdentifier(const dmaIdentifier_e identifier);
+#endif

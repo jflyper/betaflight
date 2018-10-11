@@ -48,6 +48,11 @@ typedef uint32_t timCCR_t;
 typedef uint32_t timCCER_t;
 typedef uint32_t timSR_t;
 typedef uint32_t timCNT_t;
+#elif defined(STM32H7)
+typedef uint32_t timCCR_t;
+typedef uint32_t timCCER_t;
+typedef uint32_t timSR_t;
+typedef uint32_t timCNT_t;
 #elif defined(STM32F1)
 typedef uint16_t timCCR_t;
 typedef uint16_t timCCER_t;
