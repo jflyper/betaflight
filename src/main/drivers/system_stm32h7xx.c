@@ -73,8 +73,8 @@ void enableGPIOPowerUsageAndNoiseReductions(void)
     // __HAL_RCC_ETH1MAC_CLK_ENABLE();
     // __HAL_RCC_ETH1TX_CLK_ENABLE();
     // __HAL_RCC_ETH1RX_CLK_ENABLE();
-    // __HAL_RCC_USB1_OTG_HS_CLK_ENABLE();
-    // __HAL_RCC_USB1_OTG_HS_ULPI_CLK_ENABLE();
+    __HAL_RCC_USB1_OTG_HS_CLK_ENABLE();
+    __HAL_RCC_USB1_OTG_HS_ULPI_CLK_ENABLE();
     __HAL_RCC_USB2_OTG_FS_CLK_ENABLE();
     __HAL_RCC_USB2_OTG_FS_ULPI_CLK_ENABLE();
 
@@ -110,8 +110,8 @@ void enableGPIOPowerUsageAndNoiseReductions(void)
 
     // APB3
 
-    __HAL_RCC_LTDC_CLK_ENABLE();
-    __HAL_RCC_WWDG1_CLK_ENABLE();
+    // __HAL_RCC_LTDC_CLK_ENABLE();
+    // __HAL_RCC_WWDG1_CLK_ENABLE();
 
     // APB1
                                         
@@ -136,7 +136,7 @@ void enableGPIOPowerUsageAndNoiseReductions(void)
     __HAL_RCC_I2C2_CLK_ENABLE();
     __HAL_RCC_I2C3_CLK_ENABLE();
     // __HAL_RCC_CEC_CLK_ENABLE();
-    // __HAL_RCC_DAC12_CLK_ENABLE();
+    __HAL_RCC_DAC12_CLK_ENABLE();
     __HAL_RCC_UART7_CLK_ENABLE();
     __HAL_RCC_UART8_CLK_ENABLE();
     // __HAL_RCC_CRS_CLK_ENABLE();
@@ -160,19 +160,19 @@ void enableGPIOPowerUsageAndNoiseReductions(void)
     // __HAL_RCC_SAI1_CLK_ENABLE();
     // __HAL_RCC_SAI2_CLK_ENABLE();
     // __HAL_RCC_SAI3_CLK_ENABLE();
-    __HAL_RCC_DFSDM1_CLK_ENABLE();
-    // __HAL_RCC_HRTIM1_CLK_ENABLE();
+    // __HAL_RCC_DFSDM1_CLK_ENABLE();
+    __HAL_RCC_HRTIM1_CLK_ENABLE();
 
     // APB4
                                         
     __HAL_RCC_SYSCFG_CLK_ENABLE();
-    // __HAL_RCC_LPUART1_CLK_ENABLE();
+    __HAL_RCC_LPUART1_CLK_ENABLE();
     __HAL_RCC_SPI6_CLK_ENABLE();
     __HAL_RCC_I2C4_CLK_ENABLE();
-    // __HAL_RCC_LPTIM2_CLK_ENABLE();
-    // __HAL_RCC_LPTIM3_CLK_ENABLE();
-    // __HAL_RCC_LPTIM4_CLK_ENABLE();
-    // __HAL_RCC_LPTIM5_CLK_ENABLE();
+    __HAL_RCC_LPTIM2_CLK_ENABLE();
+    __HAL_RCC_LPTIM3_CLK_ENABLE();
+    __HAL_RCC_LPTIM4_CLK_ENABLE();
+    __HAL_RCC_LPTIM5_CLK_ENABLE();
     __HAL_RCC_COMP12_CLK_ENABLE();
     __HAL_RCC_VREF_CLK_ENABLE();
     // __HAL_RCC_SAI4_CLK_ENABLE();
