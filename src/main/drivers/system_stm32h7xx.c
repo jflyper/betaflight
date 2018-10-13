@@ -139,7 +139,7 @@ void enableGPIOPowerUsageAndNoiseReductions(void)
     __HAL_RCC_DAC12_CLK_ENABLE();
     __HAL_RCC_UART7_CLK_ENABLE();
     __HAL_RCC_UART8_CLK_ENABLE();
-    // __HAL_RCC_CRS_CLK_ENABLE();
+    __HAL_RCC_CRS_CLK_ENABLE();
     // __HAL_RCC_SWPMI1_CLK_ENABLE();
     // __HAL_RCC_OPAMP_CLK_ENABLE();
     // __HAL_RCC_MDIOS_CLK_ENABLE();
@@ -177,6 +177,11 @@ void enableGPIOPowerUsageAndNoiseReductions(void)
     __HAL_RCC_VREF_CLK_ENABLE();
     // __HAL_RCC_SAI4_CLK_ENABLE();
     // __HAL_RCC_RTC_CLK_ENABLE();
+
+      // GPIO initialization, copied from drivers/system_stm32f7xx.c
+      // ... It was commented out.
+      // Where does F7 initializes the GPIO pins? It doesn't do it at all???
+
 //
 //    GPIO_InitTypeDef GPIO_InitStructure;
 //    GPIO_StructInit(&GPIO_InitStructure);
@@ -195,6 +200,27 @@ void enableGPIOPowerUsageAndNoiseReductions(void)
 //    GPIO_Init(GPIOC, &GPIO_InitStructure);
 //    GPIO_Init(GPIOD, &GPIO_InitStructure);
 //    GPIO_Init(GPIOE, &GPIO_InitStructure);
+
+      // XXX Dev temporary
+      // Initialize pins for MCO1 and MCO2 for clock testing/verification
+
+      GPIO_InitTypeDef GPIO_InitStruct;
+
+      GPIO_InitStruct.Pin = GPIO_PIN_8;
+      GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull = GPIO_NOPULL;
+      GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+      GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
+
+      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+      GPIO_InitStruct.Pin = GPIO_PIN_9;
+      GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull = GPIO_NOPULL;
+      GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+      GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
+
+      HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 }
 
 bool isMPUSoftReset(void)
