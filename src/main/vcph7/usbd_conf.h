@@ -50,16 +50,21 @@
 #define __USBD_CONF_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "common/maths.h"
+#include "common/maths.h"  // For MIN and MAX
 #include "stm32h7xx_hal.h"
+
 #if (USBD_DEBUG_LEVEL > 0)
 #include <stdio.h>
 #endif
+
 #include <stdlib.h>
 #include <string.h>
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
+
+#define USE_USB_FS
+
 /* Common Config */
 #define USBD_MAX_NUM_INTERFACES               3
 #define USBD_MAX_NUM_CONFIGURATION            1
@@ -68,7 +73,6 @@
 #define USBD_SELF_POWERED                     1
 #define USBD_DEBUG_LEVEL                      0
 #define MSC_MEDIA_PACKET                      512
-#define USE_USB_FS
 
 /* Exported macro ------------------------------------------------------------*/
 /* Memory management macros */

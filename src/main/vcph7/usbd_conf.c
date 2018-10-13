@@ -95,9 +95,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
 {
   GPIO_InitTypeDef  GPIO_InitStruct;
 
-#if 1
   //
-  // This block came from 
   // STM32Cube_FW_H7_V1.2.0/Projects/STM32H743I_EVAL/Applications/USB_Device/CDC_Standalone/Src/usbd_conf.c
   //
   if (hpcd->Instance == USB2_OTG_FS)
@@ -112,13 +110,16 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
     GPIO_InitStruct.Alternate = GPIO_AF10_OTG1_FS;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-#if 0
-    /* Configure VBUS Pin */
-    GPIO_InitStruct.Pin = GPIO_PIN_9;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    if (hpcd->Init.vbus_sensing_enable == 1)
+    {
+        /* Configure VBUS Pin */
+        GPIO_InitStruct.Pin = GPIO_PIN_9;
+        GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    }
 
+#if USE_USB_ID
     /* Configure ID pin */
     GPIO_InitStruct.Pin = GPIO_PIN_10;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
@@ -130,56 +131,14 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
     /* Enable USB FS Clocks */
     __HAL_RCC_USB2_OTG_FS_CLK_ENABLE();
 
+    /* XXX Todo: Configure and enable CRS for HSI48 */
+
     /* Set USBFS Interrupt to the lowest priority */
     HAL_NVIC_SetPriority(OTG_FS_IRQn, 6, 0);
 
     /* Enable USBFS Interrupt */
     HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
-
   }
-#else
-  //
-  // This block came from vcp_hal (F7 VCP support)
-  //
-  if (hpcd->Instance == USB_OTG_FS)
-  {
-    /* Configure USB FS GPIOs */
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-
-    /* Configure DM DP Pins */
-    GPIO_InitStruct.Pin = (GPIO_PIN_11 | GPIO_PIN_12);
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF10_OTG1_FS;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    if (hpcd->Init.vbus_sensing_enable == 1)
-    {
-      /* Configure VBUS Pin */
-      GPIO_InitStruct.Pin = GPIO_PIN_9;
-      GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-      GPIO_InitStruct.Pull = GPIO_NOPULL;
-      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-    }
-#if USE_USB_ID
-    /* Configure ID pin */
-    GPIO_InitStruct.Pin = GPIO_PIN_10;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Alternate = GPIO_AF10_OTG1_FS;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-#endif
-    /* Enable USB FS Clock */
-    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
-
-    /* Set USBFS Interrupt priority */
-    HAL_NVIC_SetPriority(OTG_FS_IRQn, 6, 0);
-
-    /* Enable USBFS Interrupt */
-    HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
-  }
-#endif
   else if (hpcd->Instance == USB_OTG_HS)
   {
 #ifdef USE_USB_HS_IN_FS
