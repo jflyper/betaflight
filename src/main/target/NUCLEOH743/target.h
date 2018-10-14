@@ -72,6 +72,33 @@
 
 #define SERIAL_PORT_COUNT       9
 
+#define USE_SPI
+
+#define USE_SPI_DEVICE_1
+
+#define SPI1_SCK_PIN            PA5
+#define SPI1_MISO_PIN           PA6
+#define SPI1_MOSI_PIN           PA7
+
+#define USE_SPI_DEVICE_2
+#define USE_SPI_DEVICE_3
+#define USE_SPI_DEVICE_4
+#define USE_SPI_DEVICE_6
+
+#define USE_GYRO
+#define USE_MULTI_GYRO
+#define USE_ACC
+
+#define USE_GYRO_SPI_MPU6000
+#define USE_ACC_SPI_MPU6000
+#define USE_GYRO_SPI_MPU6500
+#define USE_ACC_SPI_MPU6500
+#define USE_GYRO_SPI_MPU9250
+#define USE_ACC_SPI_MPU9250
+
+#define GYRO_1_CS_PIN           PA4
+#define GYRO_1_SPI_INSTANCE     SPI1
+
 #undef USE_BRUSHED_ESC_AUTODETECT  // Detect if brushed motors are connected and set defaults appropriately to avoid motors spinning on boot
 #undef USE_GYRO_REGISTER_DUMP  // Adds gyroregisters command to cli to dump configured register values
 #undef USE_TIMER
@@ -79,7 +106,6 @@
 
 #undef USE_PWM_OUTPUT
 #undef USE_EXTI
-#undef USE_ACC
 #undef USE_PPM
 #undef USE_PWM
 #undef USE_UART

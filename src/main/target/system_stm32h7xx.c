@@ -212,10 +212,10 @@ static void SystemClockHSE_Config(void)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM = 4;
-    RCC_OscInitStruct.PLL.PLLN = 400; // 8M / 4 * 400 = 800 (PLL1 output)
+    RCC_OscInitStruct.PLL.PLLN = 400; // 8M / 4 * 400 = 800 (PLL1N output)
     RCC_OscInitStruct.PLL.PLLP = 2;  // 400
-    RCC_OscInitStruct.PLL.PLLQ = 5;  // 160, no particular usage yet. (See note on PLL2/3 below)
-    RCC_OscInitStruct.PLL.PLLR = 8;  // 100, no particular usage yet. (See note on PLL2/3 below)
+    RCC_OscInitStruct.PLL.PLLQ = 8;  // 100, SPI123
+    RCC_OscInitStruct.PLL.PLLR = 5;  // 160, no particular usage yet. (See note on PLL2/3 below)
 
     RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
     RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_2;
@@ -228,6 +228,7 @@ static void SystemClockHSE_Config(void)
     // Configure PLL2 and PLL3
     // Use of PLL2 and PLL3 are not determined yet.
     // A review of total system wide clock requirements is necessary.
+
 
     // Configure SCGU (System Clock Generation Unit)
     // Select PLL as system clock source and configure bus clock dividers.
@@ -313,6 +314,38 @@ void SystemClock_Config(void)
     RCC_PeriphClkInit.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
     HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit);
 #endif
+
+    // Configure SPI clock sources
+    //
+    // Possible sources for SPI123:
+    //   PLL (pll1_q_ck)
+    //   PLL2 (pll2_p_ck)
+    //   PLL3 (pll3_p_ck)
+    //   PIN (I2S_CKIN)
+    //   CLKP (per_ck)
+    // Possible sources for SPI45:
+    //   D2PCLK1 (rcc_pclk2 = APB1) 100MHz
+    //   PLL2 (pll2_q_ck)
+    //   PLL3 (pll3_q_ck)
+    //   HSI (hsi_ker_ck)
+    //   CSI (csi_ker_ck)
+    //   HSE (hse_ck)
+    // Possible sources for SPI6:
+    //   D3PCLK1 (rcc_pclk4 = APB4) 100MHz
+    //   PLL2 (pll2_q_ck)
+    //   PLL3 (pll3_q_ck)
+    //   HSI (hsi_ker_ck)
+    //   CSI (csi_ker_ck)
+    //   HSE (hse_ck)
+
+    // For the first cut, we use 100MHz from various sources
+
+    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_SPI123|RCC_PERIPHCLK_SPI45|RCC_PERIPHCLK_SPI6;
+    RCC_PeriphClkInit.Spi123ClockSelection = RCC_SPI123CLKSOURCE_PLL;
+    RCC_PeriphClkInit.Spi45ClockSelection = RCC_SPI45CLKSOURCE_D2PCLK1;
+    RCC_PeriphClkInit.Spi6ClockSelection = RCC_SPI6CLKSOURCE_D3PCLK1;
+    HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit);
+
 
     // Configure MCO clocks for clock test/verification
 

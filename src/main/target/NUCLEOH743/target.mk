@@ -13,8 +13,12 @@ FEATURES       += VCP
 HSE_VALUE    = 8000000 # For NUCLEO-H743ZI with STLINK, HSE is 8MHz from STLINK
 
 TARGET_SRC = \
+            drivers/accgyro/accgyro_mpu.c \
+            drivers/accgyro/accgyro_mpu6500.c \
+            drivers/accgyro/accgyro_spi_mpu6000.c \
+            drivers/accgyro/accgyro_spi_mpu6500.c \
+            drivers/accgyro/accgyro_spi_mpu9250.c
 #            drivers/accgyro/accgyro_fake.c \
-#            drivers/accgyro/accgyro_mpu6050.c \
 #            drivers/barometer/barometer_fake.c \
 #            drivers/barometer/barometer_ms5611.c \
 #            drivers/compass/compass_fake.c \

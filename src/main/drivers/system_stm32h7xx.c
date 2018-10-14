@@ -32,10 +32,12 @@ void SystemClock_Config(void);
 
 void systemReset(void)
 {
+#if 0
 #ifdef USE_GYRO
     if (mpuResetFn) {
         mpuResetFn();
     }
+#endif
 #endif
 
     __disable_irq();
@@ -44,10 +46,12 @@ void systemReset(void)
 
 void systemResetToBootloader(void)
 {
+#if 0
 #ifdef USE_GYRO
     if (mpuResetFn) {
         mpuResetFn();
     }
+#endif
 #endif
 
     (*(__IO uint32_t *) (D3_BKPSRAM_BASE + 4)) = 0xDEADBEEF;   // flag that will be readable after reboot

@@ -28,7 +28,7 @@
 
 typedef struct spiPinDef_s {
     ioTag_t pin;
-#ifdef STM32F7
+#if defined(STM32F7) || defined(STM32H7)
     uint8_t af;
 #endif
 } spiPinDef_t;
@@ -43,7 +43,7 @@ typedef struct spiHardware_s {
     uint8_t af;
 #endif
     rccPeriphTag_t rcc;
-#if defined(USE_HAL_DRIVER)
+#if defined(USE_DMA) && defined(USE_HAL_DRIVER)
     uint8_t dmaIrqHandler;
 #endif
 } spiHardware_t;
@@ -55,7 +55,7 @@ typedef struct SPIDevice_s {
     ioTag_t sck;
     ioTag_t miso;
     ioTag_t mosi;
-#ifdef STM32F7
+#if defined(STM32F7) || defined(STM32H7)
     uint8_t sckAF;
     uint8_t misoAF;
     uint8_t mosiAF;
@@ -67,8 +67,10 @@ typedef struct SPIDevice_s {
     bool leadingEdge;
 #if defined(USE_HAL_DRIVER)
     SPI_HandleTypeDef hspi;
+#ifdef USE_DMA
     DMA_HandleTypeDef hdma;
     uint8_t dmaIrqHandler;
+#endif
 #endif
 } spiDevice_t;
 
