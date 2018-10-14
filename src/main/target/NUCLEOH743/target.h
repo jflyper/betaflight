@@ -20,7 +20,7 @@
 
 #pragma once
 
-#define TARGET_BOARD_IDENTIFIER "N743"
+#define TARGET_BOARD_IDENTIFIER "H743"
 #define USBD_PRODUCT_STRING "Nucleo-H743"
 
 #define USE_TARGET_CONFIG
