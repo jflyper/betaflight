@@ -107,7 +107,7 @@ typedef struct timerHardware_s {
     uint8_t channel;
     timerUsageFlag_e usageFlags;
     uint8_t output;
-#if defined(STM32F3) || defined(STM32F4) || defined(STM32F7)
+#if defined(STM32F3) || defined(STM32F4) || defined(STM32F7) || defined(STM32H7)
     uint8_t alternateFunction;
 #endif
 #if defined(USE_DSHOT) || defined(USE_LED_STRIP) || defined(USE_TRANSPONDER)
@@ -153,6 +153,8 @@ typedef enum {
 #define HARDWARE_TIMER_DEFINITION_COUNT 14
 #elif defined(STM32F7)
 #define HARDWARE_TIMER_DEFINITION_COUNT 14
+#elif defined(STM32H7)
+#define HARDWARE_TIMER_DEFINITION_COUNT 17
 #endif
 
 #define MHZ_TO_HZ(x) ((x) * 1000000)

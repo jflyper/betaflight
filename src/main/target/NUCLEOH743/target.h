@@ -101,10 +101,10 @@
 
 #undef USE_BRUSHED_ESC_AUTODETECT  // Detect if brushed motors are connected and set defaults appropriately to avoid motors spinning on boot
 #undef USE_GYRO_REGISTER_DUMP  // Adds gyroregisters command to cli to dump configured register values
-#undef USE_TIMER
-#undef USE_MOTOR
+#define USE_TIMER
+#define USE_PWM_OUTPUT
+#define USE_MOTOR
 
-#undef USE_PWM_OUTPUT
 #undef USE_EXTI
 #undef USE_PPM
 #undef USE_PWM
@@ -165,5 +165,6 @@
 #define TARGET_IO_PORTF 0xffff
 #define TARGET_IO_PORTG 0xffff
 
-#define USABLE_TIMER_CHANNEL_COUNT 13
-#define USED_TIMERS  ( TIM_N(1) | TIM_N(2) | TIM_N(3) | TIM_N(4) | TIM_N(8) | TIM_N(9) )
+#define USABLE_TIMER_CHANNEL_COUNT 16
+
+#define USED_TIMERS  ( TIM_N(2) | TIM_N(3) | TIM_N(4) | TIM_N(5) | TIM_N(8) | TIM_N(9) | TIM_N(12) )
