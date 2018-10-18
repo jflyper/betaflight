@@ -332,3 +332,12 @@
 #define USE_INVERTER
 #endif
 #endif
+
+#ifdef USE_MCO
+#ifndef MCO1_PIN
+#define MCO1_PIN        NONE
+#endif
+#ifndef MCO2_PIN
+#define MCO2_PIN        NONE
+#endif
+#endif

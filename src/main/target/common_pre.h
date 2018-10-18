@@ -51,6 +51,7 @@
 #define USE_SRAM2
 #if defined(STM32F40_41xxx)
 #define USE_FAST_RAM
+#define USE_MCO
 #endif
 #define USE_DSHOT
 #define I2C3_OVERCLOCK true
@@ -78,6 +79,7 @@
 #define USE_ADC_INTERNAL
 #define USE_USB_CDC_HID
 #define USE_USB_MSC
+#define USE_MCO
 #endif
 
 #if defined(STM32F4) || defined(STM32F7)
