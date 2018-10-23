@@ -35,16 +35,11 @@ void mcoInit(const mcoConfig_t *mcoConfig)
     // Other MCO1 and other sources can easily be added.
     // For all F4 and F7 varianets, MCO1 is on PA8 and MCO2 is on PC9.
 
-    if (mcoConfig->ioTag[1] == IO_TAG(PC9) && mcoConfig->enabled[1]) {
-        IO_t io = IOGetByTag(mcoConfig->ioTag[1]);
-#ifdef STM32F7
-        HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_PLLI2SCLK, RCC_MCODIV_4);
+    if (mcoConfig->enabled[1]) {
+        IO_t io = IOGetByTag(DEFIO_TAG_E(PC9));
         IOInit(io, OWNER_MCO, 2);
+        HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_PLLI2SCLK, RCC_MCODIV_4);
         IOConfigGPIOAF(io, IO_CONFIG(GPIO_MODE_AF_PP, GPIO_SPEED_FREQ_VERY_HIGH,  GPIO_NOPULL), GPIO_AF0_MCO);
-#else
-        // Not implemented for F4 (yet).
-        UNUSED(io);
-#endif
     }
 }
 #endif

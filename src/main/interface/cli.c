@@ -3853,9 +3853,6 @@ const cliResourceValue_t resourceTable[] = {
 #ifdef USE_USB_DETECT
     DEFS( OWNER_USB_DETECT,    PG_USB_CONFIG, usbDev_t, detectPin ),
 #endif
-#ifdef USE_MCO
-    DEFA( OWNER_MCO,           PG_MCO_CONFIG, mcoConfig_t, ioTag, 2),
-#endif
 };
 
 #undef DEFS

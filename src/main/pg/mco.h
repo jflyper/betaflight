@@ -27,7 +27,6 @@
 #include "drivers/io_types.h"
 
 typedef struct mcoConfig_s {
-    ioTag_t ioTag[2];
     uint8_t enabled[2];
 } mcoConfig_t;
 
