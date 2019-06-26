@@ -26,7 +26,21 @@
 #pragma GCC poison sprintf snprintf
 #endif
 
-#if defined(STM32H743xx) || defined(STM32H750xx)
+#if defined(STM32G474xx)
+#include "stm32g4xx.h"
+#include "stm32g4xx_hal.h"
+#include "system_stm32g4xx.h"
+
+// Chip Unique ID on G4
+#define U_ID_0 (*(uint32_t*)0x1FFF7590)
+#define U_ID_1 (*(uint32_t*)0x1FFF7594)
+#define U_ID_2 (*(uint32_t*)0x1FFF7598)
+
+#ifndef STM32G4
+#define STM32G4
+#endif
+
+#elif defined(STM32H743xx) || defined(STM32H750xx)
 #include "stm32h7xx.h"
 #include "stm32h7xx_hal.h"
 #include "system_stm32h7xx.h"
@@ -168,6 +182,9 @@
 #elif defined(STM32H743xx)
 #define MCU_TYPE_ID   11
 #define MCU_TYPE_NAME "H743"
+#elif defined(STM32G474xx)
+#define MCU_TYPE_ID   12
+#define MCU_TYPE_NAME "G474"
 #else
 #define MCU_TYPE_ID   255
 #define MCU_TYPE_NAME "Unknown MCU"
