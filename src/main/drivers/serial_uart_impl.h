@@ -67,6 +67,15 @@
 #ifndef UART_TX_BUFFER_SIZE
 #define UART_TX_BUFFER_SIZE     256
 #endif
+#elif defined(STM32G4)
+#define UARTDEV_COUNT_MAX 6
+#define UARTHARDWARE_MAX_PINS 3
+#ifndef UART_RX_BUFFER_SIZE
+#define UART_RX_BUFFER_SIZE     128
+#endif
+#ifndef UART_TX_BUFFER_SIZE
+#define UART_TX_BUFFER_SIZE     256
+#endif
 #else
 #error unknown MCU family
 #endif
@@ -125,7 +134,7 @@
 
 typedef struct uartPinDef_s {
     ioTag_t pin;
-#if defined(STM32F7) || defined(STM32H7)
+#if defined(STM32F7) || defined(STM32H7) || defined(STM32G4)
     uint8_t af;
 #endif
 } uartPinDef_t;
@@ -139,8 +148,8 @@ typedef struct uartHardware_s {
     dmaResource_t *rxDMAResource;
 #if defined(STM32F4) || defined(STM32F7)
     uint32_t DMAChannel;
-#elif defined(STM32H7)
-    // DMAMUX input from peripherals (DMA_REQUEST_xxx); RM0433 Table 110.
+#elif defined(STM32H7) || defined(STM32G4)
+    // DMAMUX input from peripherals (DMA_REQUEST_U[S]ART*)
     uint8_t txDMARequest;
     uint8_t rxDMARequest;
 #endif
@@ -149,7 +158,7 @@ typedef struct uartHardware_s {
     uartPinDef_t rxPins[UARTHARDWARE_MAX_PINS];
     uartPinDef_t txPins[UARTHARDWARE_MAX_PINS];
 
-#if defined(STM32F7) || defined(STM32H7)
+#if defined(STM32F7) || defined(STM32H7) || defined(STM32G4)
     uint32_t rcc_ahb1;
     rccPeriphTag_t rcc_apb2;
     rccPeriphTag_t rcc_apb1;
@@ -161,7 +170,7 @@ typedef struct uartHardware_s {
     uint8_t af;
 #endif
 
-#if defined(STM32F7) || defined(STM32H7)
+#if defined(STM32F7) || defined(STM32H7) || defined(STM32G4)
     uint8_t txIrq;
     uint8_t rxIrq;
 #else
@@ -170,7 +179,7 @@ typedef struct uartHardware_s {
     uint8_t txPriority;
     uint8_t rxPriority;
 
-#ifdef STM32H7
+#if defined(STM32H7) || defined(STM32G4)
     volatile uint8_t *txBuffer;
     volatile uint8_t *rxBuffer;
     uint16_t txBufferSize;
@@ -188,8 +197,8 @@ typedef struct uartDevice_s {
     const uartHardware_t *hardware;
     uartPinDef_t rx;
     uartPinDef_t tx;
-#ifdef STM32H7
-    // For H7, buffers with possible DMA access is placed in D2 SRAM.
+#if defined(STM32H7) || defined(STM32G4)
+    // For H7 and G4, buffers with possible DMA access is placed in a special segment
     volatile uint8_t *rxBuffer;
     volatile uint8_t *txBuffer;
 #else

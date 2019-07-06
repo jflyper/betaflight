@@ -57,7 +57,7 @@ typedef struct uartPort_s {
 #if defined(STM32F4) || defined(STM32F7)
     uint32_t rxDMAChannel;
     uint32_t txDMAChannel;
-#elif defined(STM32H7)
+#elif defined(STM32H7) || defined(STM32G4)
     uint8_t rxDMARequest;
     uint8_t txDMARequest;
 #endif

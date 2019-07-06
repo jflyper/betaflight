@@ -31,6 +31,7 @@
 #include "pg/pg_ids.h"
 #include "pg/serial_uart.h"
 
+#include "drivers/dma.h"
 #include "drivers/io_types.h"
 #include "drivers/serial.h"
 #include "drivers/serial_uart.h"
