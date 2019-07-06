@@ -57,6 +57,11 @@ typedef uint32_t timCCR_t;
 typedef uint32_t timCCER_t;
 typedef uint32_t timSR_t;
 typedef uint32_t timCNT_t;
+#elif defined(STM32G4)
+typedef uint32_t timCCR_t;
+typedef uint32_t timCCER_t;
+typedef uint32_t timSR_t;
+typedef uint32_t timCNT_t;
 #elif defined(STM32F1)
 typedef uint16_t timCCR_t;
 typedef uint16_t timCCER_t;
@@ -111,25 +116,25 @@ typedef struct timerHardware_s {
     uint8_t channel;
     timerUsageFlag_e usageFlags;
     uint8_t output;
-#if defined(STM32F3) || defined(STM32F4) || defined(STM32F7) || defined(STM32H7)
+#if defined(STM32F3) || defined(STM32F4) || defined(STM32F7) || defined(STM32H7) || defined(STM32G4)
     uint8_t alternateFunction;
 #endif
 
 #if defined(USE_TIMER_DMA)
 
 #if defined(USE_DMA_SPEC)
+#if defined(STM32F4) || defined(STM32F7) || defined(STM32H7) || defined(STM32G4)
     dmaResource_t *dmaRefConfigured;
-#if defined(STM32F4) || defined(STM32F7) || defined(STM32H7)
     uint32_t dmaChannelConfigured;
 #endif
 #else // USE_DMA_SPEC
     dmaResource_t *dmaRef;
-#if defined(STM32F4) || defined(STM32F7) || defined(STM32H7)
+#if defined(STM32F4) || defined(STM32F7) || defined(STM32H7) || defined(STM32G4)
     uint32_t dmaChannel; // XXX Can be much smaller (e.g. uint8_t)
 #endif
 #endif // USE_DMA_SPEC
     dmaResource_t *dmaTimUPRef;
-#if defined(STM32F4) || defined(STM32F7) || defined(STM32H7)
+#if defined(STM32F4) || defined(STM32F7) || defined(STM32H7) || defined(STM32G4)
     uint32_t dmaTimUPChannel;
 #endif
     uint8_t dmaTimUPIrqHandler;
@@ -161,6 +166,9 @@ typedef enum {
 #elif defined(STM32H7)
 #define HARDWARE_TIMER_DEFINITION_COUNT 17
 #define TIMUP_TIMERS ( BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(15) | BIT(16) | BIT(17) )
+#elif defined(STM32G4)
+#define HARDWARE_TIMER_DEFINITION_COUNT 12
+#define TIMUP_TIMERS ( BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7) | BIT(8) | BIT(15) | BIT(16) | BIT(17) )
 #endif
 
 #define MHZ_TO_HZ(x) ((x) * 1000000)
@@ -182,6 +190,10 @@ extern const timerHardware_t timerHardware[];
 #elif defined(STM32H7)
 
 #define FULL_TIMER_CHANNEL_COUNT 87
+
+#elif defined(STM32G4)
+
+#define FULL_TIMER_CHANNEL_COUNT 91 // XXX Need review
 
 #endif
 
@@ -205,6 +217,10 @@ extern const timerHardware_t fullTimerHardware[];
 #elif defined(STM32H7)
 
 #define USED_TIMERS ( TIM_N(1) | TIM_N(2) | TIM_N(3) | TIM_N(4) | TIM_N(5) | TIM_N(6) | TIM_N(7) | TIM_N(8) | TIM_N(12) | TIM_N(13) | TIM_N(14) | TIM_N(15) | TIM_N(16) | TIM_N(17) )
+
+#elif defined(STM32G4)
+
+#define USED_TIMERS ( TIM_N(1) | TIM_N(2) | TIM_N(3) | TIM_N(4) | TIM_N(5) | TIM_N(6) | TIM_N(7) | TIM_N(8) | TIM_N(15) | TIM_N(16) | TIM_N(17) | TIM_N(20) )
 
 #else
     #error "No timer / channel tag definition found for CPU"
