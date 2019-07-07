@@ -64,7 +64,7 @@ void systemReset(void);
 void systemResetToBootloader(bootloaderRequestType_e requestType);
 bool isMPUSoftReset(void);
 void cycleCounterInit(void);
-#if defined(STM32H7)
+#if defined(STM32H7) || defined(STM32G4)
 void systemCheckResetReason(void);
 #endif
 
