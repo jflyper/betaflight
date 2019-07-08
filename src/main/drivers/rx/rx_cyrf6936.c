@@ -75,7 +75,7 @@ bool cyrf6936Init(IO_t extiPin)
     rxIntIO = extiPin;
     IOInit(rxIntIO, OWNER_RX_SPI_EXTI, 0);
     EXTIHandlerInit(&cyrf6936extiCallbackRec, cyrf6936ExtiHandler);
-    EXTIConfig(rxIntIO, &cyrf6936extiCallbackRec, NVIC_PRIO_MPU_INT_EXTI, IOCFG_IPD, EXTI_TRIGGER_FALLING);
+    EXTIConfig(rxIntIO, &cyrf6936extiCallbackRec, NVIC_PRIO_MPU_INT_EXTI, IOCFG_IPD, UEXTI_TRIGGER_FALLING);
     EXTIEnable(rxIntIO, false);
 
     uint16_t timeout = 1000;

@@ -58,7 +58,7 @@ void A7105Init(uint32_t id, IO_t extiPin, IO_t txEnPin)
     rxIntIO = extiPin; /* config receiver IRQ pin */
     IOInit(rxIntIO, OWNER_RX_SPI_EXTI, 0);
     EXTIHandlerInit(&a7105extiCallbackRec, a7105extiHandler);
-    EXTIConfig(rxIntIO, &a7105extiCallbackRec, NVIC_PRIO_MPU_INT_EXTI, IOCFG_IPD, EXTI_TRIGGER_RISING);
+    EXTIConfig(rxIntIO, &a7105extiCallbackRec, NVIC_PRIO_MPU_INT_EXTI, IOCFG_IPD, UEXTI_TRIGGER_RISING);
     EXTIEnable(rxIntIO, false);
 
     if (txEnPin) {
