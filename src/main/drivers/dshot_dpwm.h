@@ -91,11 +91,7 @@ typedef struct {
     TIM_HandleTypeDef timHandle;
     DMA_HandleTypeDef hdma_tim;
 #endif
-#ifdef STM32F3
-    DMA_Channel_TypeDef *dmaBurstRef;
-#else
-    DMA_Stream_TypeDef *dmaBurstRef;
-#endif
+    dmaInstance_t *dmaBurstRef;
     uint16_t dmaBurstLength;
     uint32_t *dmaBurstBuffer;
     timeUs_t inputDirectionStampUs;
@@ -136,11 +132,7 @@ typedef struct motorDmaOutput_s {
 #endif
     uint8_t dmaInputLen;
 #endif
-#ifdef STM32F3
-    DMA_Channel_TypeDef *dmaRef;
-#else
-    DMA_Stream_TypeDef *dmaRef;
-#endif
+    dmaInstance_t *dmaRef;
 #endif
     motorDmaTimer_t *timer;
     DSHOT_DMA_BUFFER_UNIT *dmaBuffer;

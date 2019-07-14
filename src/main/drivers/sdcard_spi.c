@@ -389,10 +389,10 @@ static void sdcard_sendDataBlockBegin(const uint8_t *buffer, bool multiBlockWrit
         init.DMA_BufferSize = SDCARD_BLOCK_SIZE;
         init.DMA_Mode = DMA_Mode_Normal;
 
-        DMA_DeInit(sdcard.dma->ref);
-        DMA_Init(sdcard.dma->ref, &init);
+        DMA_DeInit((DMA_INSTANCE_TYPE *)sdcard.dma->ref);
+        DMA_Init((DMA_INSTANCE_TYPE *)sdcard.dma->ref, &init);
 
-        DMA_Cmd(sdcard.dma->ref, ENABLE);
+        DMA_Cmd((DMA_INSTANCE_TYPE *)sdcard.dma->ref, ENABLE);
 
         SPI_I2S_DMACmd(sdcard.busdev.busdev_u.spi.instance, SPI_I2S_DMAReq_Tx, ENABLE);
 #endif
@@ -749,14 +749,14 @@ static bool sdcardSpi_poll(void)
             }
 #else
 #ifdef STM32F4
-            if (sdcard.useDMAForTx && DMA_GetFlagStatus(sdcard.dma->ref, sdcard.dma->completeFlag) == SET) {
-                DMA_ClearFlag(sdcard.dma->ref, sdcard.dma->completeFlag);
+            if (sdcard.useDMAForTx && DMA_GetFlagStatus((DMA_INSTANCE_TYPE *)sdcard.dma->ref, sdcard.dma->completeFlag) == SET) {
+                DMA_ClearFlag((DMA_INSTANCE_TYPE *)sdcard.dma->ref, sdcard.dma->completeFlag);
 #else
             if (sdcard.useDMAForTx && DMA_GetFlagStatus(sdcard.dma->completeFlag) == SET) {
                 DMA_ClearFlag(sdcard.dma->completeFlag);
 #endif
 
-                DMA_Cmd(sdcard.dma->ref, DISABLE);
+                DMA_Cmd((DMA_INSTANCE_TYPE *)sdcard.dma->ref, DISABLE);
 
                 // Drain anything left in the Rx FIFO (we didn't read it during the write)
                 while (SPI_I2S_GetFlagStatus(sdcard.busdev.busdev_u.spi.instance, SPI_I2S_FLAG_RXNE) == SET) {

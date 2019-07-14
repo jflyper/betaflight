@@ -138,11 +138,11 @@ FAST_CODE void pwmWriteDshotInt(uint8_t index, uint16_t value)
         bufferSize = loadDmaBuffer(motor->dmaBuffer, 1, packet);
         motor->timer->timerDmaSources |= motor->timerDmaSource;
 #ifdef STM32F7
-        LL_EX_DMA_SetDataLength(motor->dmaRef, bufferSize);
-        LL_EX_DMA_EnableStream(motor->dmaRef);
+        LL_EX_DMA_SetDataLength((DMA_INSTANCE_TYPE *)motor->dmaRef, bufferSize);
+        LL_EX_DMA_EnableStream((DMA_INSTANCE_TYPE *)motor->dmaRef);
 #else
-        DMA_SetCurrDataCounter(motor->dmaRef, bufferSize);
-        DMA_Cmd(motor->dmaRef, ENABLE);
+        DMA_SetCurrDataCounter((DMA_INSTANCE_TYPE *)motor->dmaRef, bufferSize);
+        DMA_Cmd((DMA_INSTANCE_TYPE *)motor->dmaRef, ENABLE);
 #endif
     }
 }
@@ -252,9 +252,9 @@ bool pwmStartDshotMotorUpdate(void)
     for (int i = 0; i < dshotPwmDevice.count; i++) {
         if (dmaMotors[i].hasTelemetry) {
 #ifdef STM32F7
-            uint32_t edges = LL_EX_DMA_GetDataLength(dmaMotors[i].dmaRef);
+            uint32_t edges = LL_EX_DMA_GetDataLength((DMA_INSTANCE_TYPE *)dmaMotors[i].dmaRef);
 #else
-            uint32_t edges = DMA_GetCurrDataCounter(dmaMotors[i].dmaRef);
+            uint32_t edges = DMA_GetCurrDataCounter((DMA_INSTANCE_TYPE *)dmaMotors[i].dmaRef);
 #endif
             uint16_t value = 0xffff;
             if (edges == 0) {

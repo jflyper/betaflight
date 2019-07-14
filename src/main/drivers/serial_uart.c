@@ -67,7 +67,10 @@ void uartTryStartTxDMA(uartPort_t *s)
 
     ATOMIC_BLOCK(NVIC_PRIO_SERIALUART_TXDMA) {
 #ifdef STM32F4
-        if (s->txDMAStream->CR & 1) {
+
+        // This is STDPERIPHS case
+
+        if (IS_DMA_ENABLED(s->txDMAInstance)) {
             // DMA is already in progress
             return;
         }
@@ -75,12 +78,13 @@ void uartTryStartTxDMA(uartPort_t *s)
         // For F4 (and F1), there are cases that NDTR (CNDTR for F1) is non-zero upon TC interrupt.
         // We couldn't find out the root cause, so mask the case here.
 
-        if (s->txDMAStream->NDTR) {
+        if (DMA_GetCurrDataCounter((DMA_INSTANCE_TYPE *)s->txDMAInstance)) {
+        // if (s->txDMAInstance->NDTR) {
             // Possible premature TC case.
             goto reenable;
         }
 
-        // DMA_Cmd(s->txDMAStream, DISABLE); // XXX It's already disabled.
+        // DMA_Cmd(s->txDMAInstance, DISABLE); // XXX It's already disabled.
 
         if (s->port.txBufferHead == s->port.txBufferTail) {
             // No more data to transmit.
@@ -90,22 +94,22 @@ void uartTryStartTxDMA(uartPort_t *s)
 
         // Start a new transaction.
 
-        DMA_MemoryTargetConfig(s->txDMAStream, (uint32_t)&s->port.txBuffer[s->port.txBufferTail], DMA_Memory_0);
-        //s->txDMAStream->M0AR = (uint32_t)&s->port.txBuffer[s->port.txBufferTail];
+        DMA_MemoryTargetConfig((DMA_INSTANCE_TYPE *)s->txDMAInstance, (uint32_t)&s->port.txBuffer[s->port.txBufferTail], DMA_Memory_0);
+        //s->txDMAInstance->M0AR = (uint32_t)&s->port.txBuffer[s->port.txBufferTail];
         if (s->port.txBufferHead > s->port.txBufferTail) {
-            s->txDMAStream->NDTR = s->port.txBufferHead - s->port.txBufferTail;
+            DMA_SetCurrDataCounter((DMA_INSTANCE_TYPE *)s->txDMAInstance, s->port.txBufferHead - s->port.txBufferTail);
             s->port.txBufferTail = s->port.txBufferHead;
         }
         else {
-            s->txDMAStream->NDTR = s->port.txBufferSize - s->port.txBufferTail;
+            DMA_SetCurrDataCounter((DMA_INSTANCE_TYPE *)s->txDMAInstance, s->port.txBufferSize - s->port.txBufferTail);
             s->port.txBufferTail = 0;
         }
         s->txDMAEmpty = false;
 
     reenable:
-        DMA_Cmd(s->txDMAStream, ENABLE);
+        DMA_Cmd((DMA_INSTANCE_TYPE *)s->txDMAInstance, ENABLE);
 #else
-        if (s->txDMAChannel->CCR & 1) {
+        if (IS_DMA_ENABLED(s->txDMAInstance)) {
             // DMA is already in progress
             return;
         }
@@ -114,7 +118,7 @@ void uartTryStartTxDMA(uartPort_t *s)
         // We couldn't find out the root cause, so mask the case here.
         // F3 is not confirmed to be vulnerable, but not excluded as a safety.
 
-        if (s->txDMAChannel->CNDTR) {
+        if (DMA_GetCurrDataCounter((DMA_INSTANCE_TYPE *)s->txDMAInstance)) {
             // Possible premature TC case.
             goto reenable;
         }
@@ -127,18 +131,20 @@ void uartTryStartTxDMA(uartPort_t *s)
 
         // Start a new transaction.
 
-        s->txDMAChannel->CMAR = (uint32_t)&s->port.txBuffer[s->port.txBufferTail];
+        // s->txDMAInstance->CMAR = (uint32_t)&s->port.txBuffer[s->port.txBufferTail];
+        DMAx_SetMemoryAddress(s->txDMAInstance, (uint32_t)&s->port.txBuffer[s->port.txBufferTail]);
+
         if (s->port.txBufferHead > s->port.txBufferTail) {
-            s->txDMAChannel->CNDTR = s->port.txBufferHead - s->port.txBufferTail;
+            DMA_SetCurrDataCounter((DMA_INSTANCE_TYPE *)s->txDMAInstance, s->port.txBufferHead - s->port.txBufferTail);
             s->port.txBufferTail = s->port.txBufferHead;
         } else {
-            s->txDMAChannel->CNDTR = s->port.txBufferSize - s->port.txBufferTail;
+            DMA_SetCurrDataCounter((DMA_INSTANCE_TYPE *)s->txDMAInstance, s->port.txBufferSize - s->port.txBufferTail);
             s->port.txBufferTail = 0;
         }
         s->txDMAEmpty = false;
 
     reenable:
-        DMA_Cmd(s->txDMAChannel, ENABLE);
+        DMA_Cmd((DMA_INSTANCE_TYPE *)s->txDMAInstance, ENABLE);
 #endif
     }
 }
@@ -147,11 +153,11 @@ static uint32_t uartTotalRxBytesWaiting(const serialPort_t *instance)
 {
     const uartPort_t *s = (const uartPort_t*)instance;
 #ifdef STM32F4
-    if (s->rxDMAStream) {
-        uint32_t rxDMAHead = s->rxDMAStream->NDTR;
+    if (s->rxDMAInstance) {
+        uint32_t rxDMAHead = DMA_GetCurrDataCounter((DMA_INSTANCE_TYPE *)s->rxDMAInstance);
 #else
-    if (s->rxDMAChannel) {
-        uint32_t rxDMAHead = s->rxDMAChannel->CNDTR;
+    if (s->rxDMAInstance) {
+        uint32_t rxDMAHead = DMA_GetCurrDataCounter((DMA_INSTANCE_TYPE *)s->rxDMAInstance);
 #endif
         if (rxDMAHead >= s->rxDMAPos) {
             return rxDMAHead - s->rxDMAPos;
@@ -179,20 +185,15 @@ static uint32_t uartTotalTxBytesFree(const serialPort_t *instance)
         bytesUsed = s->port.txBufferSize + s->port.txBufferHead - s->port.txBufferTail;
     }
 
+    if (s->txDMAInstance) {
+        /*
+         * When we queue up a DMA request, we advance the Tx buffer tail before the transfer finishes, so we must add
+         * the remaining size of that in-progress transfer here instead:
+         */
 #ifdef STM32F4
-    if (s->txDMAStream) {
-        /*
-         * When we queue up a DMA request, we advance the Tx buffer tail before the transfer finishes, so we must add
-         * the remaining size of that in-progress transfer here instead:
-         */
-        bytesUsed += s->txDMAStream->NDTR;
+        bytesUsed += DMA_GetCurrDataCounter((DMA_INSTANCE_TYPE *)s->txDMAInstance);
 #else
-    if (s->txDMAChannel) {
-        /*
-         * When we queue up a DMA request, we advance the Tx buffer tail before the transfer finishes, so we must add
-         * the remaining size of that in-progress transfer here instead:
-         */
-        bytesUsed += s->txDMAChannel->CNDTR;
+        bytesUsed += DMA_GetCurrDataCounter((DMA_INSTANCE_TYPE *)s->txDMAInstance);
 #endif
         /*
          * If the Tx buffer is being written to very quickly, we might have advanced the head into the buffer
@@ -214,9 +215,9 @@ static bool isUartTransmitBufferEmpty(const serialPort_t *instance)
 {
     const uartPort_t *s = (const uartPort_t *)instance;
 #ifdef STM32F4
-    if (s->txDMAStream)
+    if (s->txDMAInstance)
 #else
-    if (s->txDMAChannel)
+    if (s->txDMAInstance)
 #endif
         return s->txDMAEmpty;
     else
@@ -228,11 +229,7 @@ static uint8_t uartRead(serialPort_t *instance)
     uint8_t ch;
     uartPort_t *s = (uartPort_t *)instance;
 
-#ifdef STM32F4
-    if (s->rxDMAStream) {
-#else
-    if (s->rxDMAChannel) {
-#endif
+    if (s->rxDMAInstance) {
         ch = s->port.rxBuffer[s->port.rxBufferSize - s->rxDMAPos];
         if (--s->rxDMAPos == 0)
             s->rxDMAPos = s->port.rxBufferSize;
@@ -258,12 +255,7 @@ static void uartWrite(serialPort_t *instance, uint8_t ch)
         s->port.txBufferHead++;
     }
 
-#ifdef STM32F4
-    if (s->txDMAStream)
-#else
-    if (s->txDMAChannel)
-#endif
-    {
+    if (s->txDMAInstance) {
         uartTryStartTxDMA(s);
     } else {
         USART_ITConfig(s->USARTx, USART_IT_TXE, ENABLE);

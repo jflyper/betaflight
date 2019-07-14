@@ -22,16 +22,31 @@
 
 #include "resource.h"
 
+// dmaInstance_t is a opaque data type which represents a single DMA engine,
+// called and implemented differently in different families of STM32s.
+// The opaque data type provides uniform handling of the engine in source code.
+// The engines are referenced by dmaInstance_t through out the Betaflight code,
+// and then converted back to DMA_INSTANCE_TYPE which is a native type for
+// the particular MCU type when calling library functions.
+
+typedef struct dmaInstance_s dmaInstance_t;
+
+#if defined(STM32F4) || defined(STM32F7)
+#define DMA_INSTANCE_TYPE DMA_Stream_TypeDef
+#elif defined(STM32H7)
+#define DMA_INSTANCE_TYPE void
+#else
+#define DMA_INSTANCE_TYPE DMA_Channel_TypeDef
+#endif
+
 struct dmaChannelDescriptor_s;
 typedef void (*dmaCallbackHandlerFuncPtr)(struct dmaChannelDescriptor_s *channelDescriptor);
 
 typedef struct dmaChannelDescriptor_s {
     DMA_TypeDef*                dma;
+    dmaInstance_t               *ref;
 #if defined(STM32F4) || defined(STM32F7) || defined(STM32H7)
-    DMA_Stream_TypeDef*         ref;
     uint8_t                     stream;
-#else
-    DMA_Channel_TypeDef*        ref;
 #endif
     dmaCallbackHandlerFuncPtr   irqHandlerCallback;
     uint8_t                     flagsShift;
@@ -81,7 +96,7 @@ typedef enum {
 
 #define DEFINE_DMA_CHANNEL(d, s, f) { \
     .dma = d, \
-    .ref = d ## _Stream ## s, \
+    .ref = (dmaInstance_t *)d ## _Stream ## s, \
     .stream = s, \
     .irqHandlerCallback = NULL, \
     .flagsShift = f, \
@@ -107,9 +122,9 @@ typedef enum {
 #define DMA_IT_DMEIF        ((uint32_t)0x00000004)
 #define DMA_IT_FEIF         ((uint32_t)0x00000001)
 
-dmaIdentifier_e dmaGetIdentifier(const DMA_Stream_TypeDef* stream);
-dmaChannelDescriptor_t* dmaGetDmaDescriptor(const DMA_Stream_TypeDef* stream);
-DMA_Stream_TypeDef* dmaGetRefByIdentifier(const dmaIdentifier_e identifier);
+dmaIdentifier_e dmaGetIdentifier(const dmaInstance_t *stream);
+dmaChannelDescriptor_t* dmaGetDmaDescriptor(const dmaInstance_t *stream);
+dmaInstance_t *dmaGetRefByIdentifier(const dmaIdentifier_e identifier);
 uint32_t dmaGetChannel(const uint8_t channel);
 
 #else
@@ -143,7 +158,7 @@ typedef enum {
 
 #define DEFINE_DMA_CHANNEL(d, c, f) { \
     .dma = d, \
-    .ref = d ## _Channel ## c, \
+    .ref = (dmaInstance_t *)d ## _Channel ## c, \
     .irqHandlerCallback = NULL, \
     .flagsShift = f, \
     .irqN = d ## _Channel ## c ## _IRQn, \
@@ -165,9 +180,29 @@ typedef enum {
 #define DMA_IT_HTIF         ((uint32_t)0x00000004)
 #define DMA_IT_TEIF         ((uint32_t)0x00000008)
 
-dmaIdentifier_e dmaGetIdentifier(const DMA_Channel_TypeDef* channel);
-DMA_Channel_TypeDef* dmaGetRefByIdentifier(const dmaIdentifier_e identifier);
+dmaIdentifier_e dmaGetIdentifier(const dmaInstance_t* channel);
+dmaInstance_t* dmaGetRefByIdentifier(const dmaIdentifier_e identifier);
 
+#endif
+
+// Macros to avoid direct register and register bit access
+#if defined(STM32F4) || defined(STM32F7)
+#define IS_DMA_ENABLED(reg) (((DMA_INSTANCE_TYPE *)(reg))->CR & DMA_SxCR_EN)
+#define REG_NDTR NDTR
+#elif defined(STM32H7)
+// For H7, we have to differenciate DMA1/2 and BDMA for access to the control register.
+// HAL library has a macro for this, but it is extremely inefficient in that it compares
+// the address against all possible values.
+// Here, we just compare the address against regions of memory.
+// If it's not in D3 peripheral area, then it's DMA1/2 and it's stream based.
+// If not, it's BDMA and it's channel based.
+#define IS_DMA_ENABLED(reg) \
+    ((uint32_t)(reg) < D3_AHB1PERIPH_BASE) ? \
+        (((DMA_Stream_TypeDef *)(reg))->CR & DMA_SxCR_EN) : \
+        (((BDMA_Channel_TypeDef *)(reg))->CCR & BDMA_CCR_EN)
+#else
+#define IS_DMA_ENABLED(reg) (((DMA_INSTANCE_TYPE *)(reg))->CCR & DMA_CCR_EN)
+#define DMAx_SetMemoryAddress(reg, address) ((DMA_INSTANCE_TYPE *)(reg))->CMAR = (uint32_t)&s->port.txBuffer[s->port.txBufferTail]
 #endif
 
 void dmaInit(dmaIdentifier_e identifier, resourceOwner_e owner, uint8_t resourceIndex);

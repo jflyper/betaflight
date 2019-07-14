@@ -52,7 +52,7 @@ const adcDevice_t adcHardware[] = {
         .ADCx = ADC1,
         .rccADC = RCC_APB2(ADC1),
 #if !defined(USE_DMA_SPEC)
-        .DMAy_Streamx = ADC1_DMA_STREAM,
+        .dmaInstance = (dmaInstance_t *)ADC1_DMA_STREAM,
         .channel = DMA_Channel_0
 #endif
     },
@@ -61,7 +61,7 @@ const adcDevice_t adcHardware[] = {
         .ADCx = ADC2,
         .rccADC = RCC_APB2(ADC2),
 #if !defined(USE_DMA_SPEC)
-        .DMAy_Streamx = ADC2_DMA_STREAM,
+        .dmaInstance = (dmaInstance_t *)ADC2_DMA_STREAM,
         .channel = DMA_Channel_1
 #endif
     },
@@ -69,7 +69,7 @@ const adcDevice_t adcHardware[] = {
         .ADCx = ADC3,
         .rccADC = RCC_APB2(ADC3),
 #if !defined(USE_DMA_SPEC)
-        .DMAy_Streamx = ADC3_DMA_STREAM,
+        .dmaInstance = (dmaInstance_t *)ADC3_DMA_STREAM,
         .channel = DMA_Channel_2
 #endif
     }
@@ -310,11 +310,11 @@ void adcInit(const adcConfig_t *config)
 
     dmaInit(dmaGetIdentifier(dmaSpec->ref), OWNER_ADC, RESOURCE_INDEX(device));
 
-    DMA_DeInit(dmaSpec->ref);
+    DMA_DeInit((DMA_INSTANCE_TYPE *)dmaSpec->ref);
 #else
-    dmaInit(dmaGetIdentifier(adc.DMAy_Streamx), OWNER_ADC, 0);
+    dmaInit(dmaGetIdentifier(adc.dmaInstance), OWNER_ADC, 0);
 
-    DMA_DeInit(adc.DMAy_Streamx);
+    DMA_DeInit((DMA_INSTANCE_TYPE *)adc.dmaInstance);
 #endif
 
     DMA_InitTypeDef DMA_InitStructure;
@@ -339,11 +339,11 @@ void adcInit(const adcConfig_t *config)
     DMA_InitStructure.DMA_Priority = DMA_Priority_High;
 
 #ifdef USE_DMA_SPEC
-    DMA_Init(dmaSpec->ref, &DMA_InitStructure);
-    DMA_Cmd(dmaSpec->ref, ENABLE);
+    DMA_Init((DMA_INSTANCE_TYPE *)dmaSpec->ref, &DMA_InitStructure);
+    DMA_Cmd((DMA_INSTANCE_TYPE *)dmaSpec->ref, ENABLE);
 #else
-    DMA_Init(adc.DMAy_Streamx, &DMA_InitStructure);
-    DMA_Cmd(adc.DMAy_Streamx, ENABLE);
+    DMA_Init((DMA_INSTANCE_TYPE *)adc.dmaInstance, &DMA_InitStructure);
+    DMA_Cmd((DMA_INSTANCE_TYPE *)adc.dmaInstance, ENABLE);
 #endif
 
     ADC_SoftwareStartConv(adc.ADCx);
