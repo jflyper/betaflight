@@ -293,11 +293,80 @@ void Error_Handler(void)
     }
 }
 
+typedef struct pllConfig_s {
+    uint16_t input; // PLL input
+    uint16_t mhz; // Target SYSCLK
+    uint16_t m;
+    uint16_t n;
+    uint16_t p;
+    uint16_t q;
+    uint16_t r;
+} pllConfig_t;
+
+/*
+    Overclocking Experiment results
+
+    Input = 24M, PLLM = DIV6, PLLN = 127, PLLR = DIV2 : SYSCLK = 254M (PLLN overflows at 128)
+    Input = 24M, PLLM = DIV4, PLLN =  93, PLLR = DIV2 : SYSCLK = 279M (PLLN = 94 exceeds VCO max freq?)
+    (Nominal VCO max freq is 344M)
+
+    170M ~ 254M:
+        In 2M step, PLLN = (target & ~1) * 2 / (24 / 6)
+
+    255M ~ 279M:
+        In 3M step, PLLN = ((target div 3) / 3) * 2 / (24 / 4)
+
+    216M (F7 standard clock) is just a bit not enough to run RPM filter at 8/8 with slack for other tasks.
+    In this case, 27MHz MCO can be derived by MCO prescaler 8.
+
+    Thermal behavior is excellent:
+    On Nucleo-G474RE, nominal max 170MHz ~ 216MHz at room temp (27 degC) runs at 34 ~ 36 degC,
+    254MHz overclocking runs stably at 40 degC, and 279MHz at 42 degC.
+ */
+
+/*
+    27MHz HSE may be useful for generating 27MHz MCO for OSDs (MCO clock source = HSE)
+
+    The closest we can get to nominal max is 171MHz
+    Input = 27M, PLLM = DIV6, PLLN = 76, PLLR = DIV2 : SYSCLK = 171MHz
+
+    Standard parameters derive over clocked configuration:
+    Input = 27M, PLLM = DIV6, PLLN = 85, PLLR = DIV2 : SYSCLK = 191.25MHz
+
+    Then, max for PLLM = DIV6 is
+    Input = 27M, PLLM = DIV6, PLLN = 127, PLLR = DIV2 : SYSCLK = 285.75
+
+    Max for PLLM = DIV4 is
+    Input = 27M, PLLM = DIV4, PLLN = 93, PLLR = DIV2 : SYSCLK = 313.875
+
+*/
+
+static const pllConfig_t pllConfig[] = {
+    { 24, 170, RCC_PLLM_DIV6,  85, RCC_PLLP_DIV2, RCC_PLLQ_DIV2, RCC_PLLR_DIV2 }, // standard
+    { 24, 216, RCC_PLLM_DIV6, 108, RCC_PLLP_DIV2, RCC_PLLQ_DIV2, RCC_PLLR_DIV2 }, // F7 equiv
+    { 24, 220, RCC_PLLM_DIV6, 110, RCC_PLLP_DIV2, RCC_PLLQ_DIV2, RCC_PLLR_DIV2 }, // Limit for 8/8 RPM
+    { 24, 240, RCC_PLLM_DIV6, 120, RCC_PLLP_DIV2, RCC_PLLQ_DIV2, RCC_PLLR_DIV2 }, // Comfortable with 8/8RPM
+
+    { 24, 254, RCC_PLLM_DIV6, 127, RCC_PLLP_DIV2, RCC_PLLQ_DIV2, RCC_PLLR_DIV2 }, // DIV6 max
+    { 24, 279, RCC_PLLM_DIV4,  93, RCC_PLLP_DIV2, RCC_PLLQ_DIV2, RCC_PLLR_DIV2 }, // DIV4 max
+};
+
+static int overClockLevel = 3;
+uint16_t pll_m;
+uint16_t pll_n;
+
+static void SystemClock_PLLConfig(void)
+{
+    pll_m = pllConfig[overClockLevel].m;
+    pll_n = pllConfig[overClockLevel].n;
+}
+
 /**
   * @brief System Clock Configuration
   * @retval None
   */
 // Extracted from MX generated main.c 
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -305,13 +374,17 @@ void SystemClock_Config(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
   RCC_CRSInitTypeDef pInit = {0};
 
-  /** Configure the main internal regulator output voltage 
-  */
+  SystemClock_PLLConfig();
+
+  // Configure the main internal regulator output voltage 
+
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
-  /** Initializes the CPU, AHB and APB busses clocks 
-  */
+
+  // Initializes the CPU, AHB and APB busses clocks 
+
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI48
                               |RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
+
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
@@ -319,17 +392,19 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV6;
-  RCC_OscInitStruct.PLL.PLLN = 85;
+  RCC_OscInitStruct.PLL.PLLM = pll_m;
+  RCC_OscInitStruct.PLL.PLLN = pll_n;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
-  */
+
+  // Initializes the CPU, AHB and APB busses clocks 
+
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
@@ -341,8 +416,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the peripherals clocks 
-  */
+
+  // Initializes the peripherals clocks 
+
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2
                               |RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_UART4
                               |RCC_PERIPHCLK_UART5|RCC_PERIPHCLK_I2C1
@@ -368,12 +444,14 @@ void SystemClock_Config(void)
   PeriphClkInit.FdcanClockSelection = RCC_FDCANCLKSOURCE_PCLK1;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Configures CRS 
-  */
+
+  // Configures CRS 
+
   pInit.Prescaler = RCC_CRS_SYNC_DIV1;
   pInit.Source = RCC_CRS_SYNC_SOURCE_USB;
   pInit.Polarity = RCC_CRS_SYNC_POLARITY_RISING;

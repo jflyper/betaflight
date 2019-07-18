@@ -45,9 +45,10 @@ typedef struct systemConfig_s {
     uint8_t cpu_overclock;
     uint8_t powerOnArmingGraceTime; // in seconds
     char boardIdentifier[sizeof(TARGET_BOARD_IDENTIFIER) + 1];
-    uint8_t hseMhz; // Not used for non-F4 targets
+    uint8_t hseMhz; // Only used for F4 and G4 targets
     uint8_t configured;
     uint8_t schedulerOptimizeRate;
+    uint16_t cpu_clock_mhz;
 } systemConfig_t;
 
 PG_DECLARE(systemConfig_t, systemConfig);
