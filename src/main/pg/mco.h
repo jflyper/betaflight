@@ -27,7 +27,13 @@
 #include "drivers/io_types.h"
 
 typedef struct mcoConfig_s {
+#ifdef STM32G4
+    uint8_t enabled;
+    uint8_t source;
+    uint8_t divider;
+#else
     uint8_t enabled[2];
+#endif
 } mcoConfig_t;
 
 PG_DECLARE(mcoConfig_t, mcoConfig);

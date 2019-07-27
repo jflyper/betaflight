@@ -22,4 +22,9 @@
 
 #include "pg/mco.h"
 
+#ifdef STM32G4
+#define MCO_SOURCE_COUNT   8
+#define MCO_DIVIDER_COUNT  5
+#endif
+
 void mcoInit(const mcoConfig_t *mcoConfig);

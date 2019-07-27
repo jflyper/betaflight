@@ -32,8 +32,16 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(mcoConfig_t, mcoConfig, PG_MCO_CONFIG, 0);
 
+#ifdef STM32G4
+PG_RESET_TEMPLATE(mcoConfig_t, mcoConfig,
+    .enabled = 0,
+    .source = 3, // HSE
+    .divider = 1,
+);
+#else
 PG_RESET_TEMPLATE(mcoConfig_t, mcoConfig,
     .enabled[0] = 0,
     .enabled[1] = 0,
 );
+#endif
 #endif // USE_MCO
