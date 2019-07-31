@@ -177,8 +177,9 @@ MCU_EXCLUDES = \
             drivers/bus_i2c.c \
             drivers/timer.c
 
+# G4's MSC use the same driver layer file with F7
 MSC_SRC = \
-            drivers/usb_msc_g4xx.c \
+            drivers/usb_msc_f7xx.c \
             msc/usbd_storage.c
 
 ifneq ($(filter SDCARD_SDIO,$(FEATURES)),)
