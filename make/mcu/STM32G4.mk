@@ -52,7 +52,6 @@ EXCLUDES        = \
                 stm32g4xx_ll_crc.c \
                 stm32g4xx_ll_crs.c \
                 stm32g4xx_ll_dac.c \
-                stm32g4xx_ll_dma.c \
                 stm32g4xx_ll_exti.c \
                 stm32g4xx_ll_fmac.c \
                 stm32g4xx_ll_fmc.c \
@@ -67,7 +66,6 @@ EXCLUDES        = \
                 stm32g4xx_ll_rng.c \
                 stm32g4xx_ll_rtc.c \
                 stm32g4xx_ll_spi.c \
-                stm32g4xx_ll_tim.c \
                 stm32g4xx_ll_ucpd.c \
                 stm32g4xx_ll_usart.c \
                 stm32g4xx_ll_utils.c
@@ -130,7 +128,7 @@ endif
 #Flags
 ARCH_FLAGS      = -mthumb -mcpu=cortex-m4 -march=armv7e-m -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -Wdouble-promotion
 
-DEVICE_FLAGS    = -DUSE_HAL_DRIVER -DUSE_DMA_RAM -DMAX_MPU_REGIONS=16
+DEVICE_FLAGS    = -DUSE_HAL_DRIVER -DUSE_FULL_LL_DRIVER -DUSE_DMA_RAM -DMAX_MPU_REGIONS=16
 
 #
 # G4X4_TARGETS includes G4X3 series
@@ -166,7 +164,8 @@ MCU_COMMON_SRC = \
             drivers/transponder_ir_io_hal.c \
             drivers/bus_spi_hal.c \
             drivers/persistent.c \
-            drivers/pwm_output_dshot_hal_hal.c \
+            drivers/pwm_output_dshot_shared.c \
+            drivers/pwm_output_dshot_hal.c \
             drivers/timer_hal.c \
             drivers/timer_stm32g4xx.c \
             drivers/system_stm32g4xx.c \
