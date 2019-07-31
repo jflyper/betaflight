@@ -31,6 +31,15 @@
 #include "stm32g4xx_hal.h"
 #include "system_stm32g4xx.h"
 
+#include "stm32g4xx_ll_spi.h"
+#include "stm32g4xx_ll_gpio.h"
+#include "stm32g4xx_ll_dma.h"
+#include "stm32g4xx_ll_rcc.h"
+#include "stm32g4xx_ll_bus.h"
+#include "stm32g4xx_ll_tim.h"
+#include "stm32g4xx_ll_system.h"
+#include "drivers/stm32g4xx_ll_ex.h"
+
 // Chip Unique ID on G4
 #define U_ID_0 (*(uint32_t*)0x1FFF7590)
 #define U_ID_1 (*(uint32_t*)0x1FFF7594)
