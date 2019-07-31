@@ -179,6 +179,10 @@ void systemCheckResetReason(void)
         persistentObjectWrite(PERSISTENT_OBJECT_RESET_REASON, RESET_BOOTLOADER_POST);
         break;
 
+    case RESET_MSC_REQUEST:
+        // RESET_REASON will be reset by MSC
+        return;
+
     case RESET_FORCED:
         persistentObjectWrite(PERSISTENT_OBJECT_RESET_REASON, RESET_NONE);
         return;
