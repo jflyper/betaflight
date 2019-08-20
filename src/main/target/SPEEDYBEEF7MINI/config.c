@@ -27,14 +27,32 @@
 
 #include "config_helper.h"
 
+#include "drivers/io.h"
 #include "io/serial.h"
+#include "pg/pinio.h"
+#include "pg/piniobox.h"
 
 static targetSerialPortFunction_t targetSerialPortFunction[] = {
     { SERIAL_PORT_USART2, FUNCTION_ESC_SENSOR },
 };
 
+// UART4 for BT is configured separately as it requires the specific speed
+#define BLUETOOTH_MSP_UART          SERIAL_PORT_UART4
+#define BLUETOOTH_MSP_BAUDRATE      BAUD_19200
+
 void targetConfiguration(void)
 {
     targetSerialPortFunctionConfig(targetSerialPortFunction, ARRAYLEN(targetSerialPortFunction));
+    // Tie PC14 to pinio 1, and link it to BOXARM to control BT module power
+    pinioConfigMutable()->ioTag[0] = IO_TAG(PC14);
+    pinioConfigMutable()->config[0] = PINIO_CONFIG_OUT_INVERTED | PINIO_CONFIG_MODE_OUT_PP;
+    pinioBoxConfigMutable()->permanentId[0] = BOXARM;
+
+    // Configure UART4 as MSP at 19200bps
+    serialPortConfig_t *bluetoothMspUART = serialFindPortConfiguration(BLUETOOTH_MSP_UART);
+    if (bluetoothMspUART) {
+        bluetoothMspUART->functionMask = FUNCTION_MSP;
+        bluetoothMspUART->msp_baudrateIndex = BLUETOOTH_MSP_BAUDRATE;
+    }
 }
 #endif
