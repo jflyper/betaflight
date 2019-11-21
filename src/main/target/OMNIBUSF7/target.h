@@ -20,6 +20,8 @@
 
 #pragma once
 
+#define USE_OSD_OVER_MSP_DISPLAYPORT
+
 //OMNIBUSF7 TARGETS-------------------------
 #define USE_TARGET_CONFIG
 #if defined (FPVM_BETAFLIGHTF7)
