@@ -22,6 +22,8 @@
 
 #include "common/time.h"
 
+#include "drivers/display.h"
+
 #include "pg/pg.h"
 
 #include "sensors/esc_sensor.h"
@@ -229,6 +231,13 @@ typedef enum {
     OSD_DISPLAYPORT_DEVICE_MSP,
 } osdDisplayPortDevice_e;
 
+typedef enum {
+    OSD_ATTR_NORMAL = 0,
+    OSD_ATTR_INFORMATIONAL,
+    OSD_ATTR_WARNING,
+    OSD_ATTR_CRITICAL,
+} osdAttributes_e;
+
 // Make sure the number of warnings do not exceed the available 32bit storage
 STATIC_ASSERT(OSD_WARNING_COUNT <= 32, osdwarnings_overflow);
 
@@ -300,6 +309,10 @@ extern float osdGForce;
 extern escSensorData_t *osdEscDataCombined;
 #endif
 
+extern uint8_t osdAttrNormal;
+extern uint8_t osdAttrInformational;
+extern uint8_t osdAttrWarning;
+extern uint8_t osdAttrCritical;
 
 struct displayPort_s;
 void osdInit(struct displayPort_s *osdDisplayPort);

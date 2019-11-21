@@ -47,8 +47,9 @@ static int srxlScreenSize(const displayPort_t *displayPort)
 
 static int srxlWriteChar(displayPort_t *displayPort, uint8_t col, uint8_t row, uint8_t c)
 {
-    return (spektrumTmTextGenPutChar(col, row, c));
     UNUSED(displayPort);
+
+    return (spektrumTmTextGenPutChar(col, row, c));
 }
 
 
@@ -58,6 +59,20 @@ static int srxlWriteString(displayPort_t *displayPort, uint8_t col, uint8_t row,
         srxlWriteChar(displayPort, col++, row, *(s++));
     }
     return 0;
+}
+
+static int srxlWriteCharWithAttribute(displayPort_t *displayPort, uint8_t col, uint8_t row, uint8_t attr, uint8_t c)
+{
+    UNUSED(attr);
+
+    return srxlWriteChar(displayPort, col, row, c);
+}
+
+static int srxlWriteStringWithAttribute(displayPort_t *displayPort, uint8_t col, uint8_t row, uint8_t attr, const char *s)
+{
+    UNUSED(attr);
+
+    return srxlWriteString(displayPort, col, row, s);
 }
 
 static int srxlClearScreen(displayPort_t *displayPort)
@@ -124,8 +139,8 @@ static const displayPortVTable_t srxlVTable = {
     .clearScreen = srxlClearScreen,
     .drawScreen = srxlDrawScreen,
     .screenSize = srxlScreenSize,
-    .writeString = srxlWriteString,
-    .writeChar = srxlWriteChar,
+    .writeString = srxlWriteStringWithAttribute,
+    .writeChar = srxlWriteCharWithAttribute,
     .isTransferInProgress = srxlIsTransferInProgress,
     .heartbeat = srxlHeartbeat,
     .resync = srxlResync,

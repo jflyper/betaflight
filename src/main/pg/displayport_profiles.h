@@ -29,6 +29,12 @@ typedef struct displayPortProfile_s {
     uint8_t blackBrightness;
     uint8_t whiteBrightness;
     int8_t displayPortSerial;  // serialPortIdentifier_e
+
+    // For attribute-rich OSDs
+
+    uint8_t attrValues[4];     // NORMAL, INFORMATIONAL, WARNING, CRITICAL
+    uint8_t vendorInitLength;  // Actual length of vendorInit byte string
+    uint8_t vendorInit[253];   // Max 253 bytes of vendor specific initialization byte string
 } displayPortProfile_t;
 
 PG_DECLARE(displayPortProfile_t, displayPortProfileMsp);
