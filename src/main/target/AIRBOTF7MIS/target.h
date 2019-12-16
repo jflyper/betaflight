@@ -20,6 +20,8 @@
 
 #pragma once
 
+#define USE_DISPLAYPORT_MSP_VENDOR_SPECIFIC
+
 #define TARGET_BOARD_IDENTIFIER "AB7M"
 #define USBD_PRODUCT_STRING     "Airbot-F7-MIS"
 
