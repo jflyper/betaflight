@@ -92,6 +92,14 @@ void uartReconfigure(uartPort_t *uartPort)
 
     usartConfigurePinInversion(uartPort);
 
+#ifdef USE_UART_TXRXSWAP
+    uartDevice_t *device = (uartDevice_t *)uartPort;
+    if (device->txrxPinSwapped) {
+        uartPort->Handle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT;
+        uartPort->Handle.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
+    }
+#endif
+
 #ifdef TARGET_USART_CONFIG
     void usartTargetConfigure(uartPort_t *);
     usartTargetConfigure(uartPort);

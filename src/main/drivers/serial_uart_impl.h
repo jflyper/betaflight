@@ -192,6 +192,9 @@ typedef struct uartDevice_s {
     const uartHardware_t *hardware;
     uartPinDef_t rx;
     uartPinDef_t tx;
+#ifdef USE_UART_TXRXSWAP
+    bool txrxPinSwapped; // Detected automatically when uartPinDef_t rx and tx are set
+#endif
     volatile uint8_t *rxBuffer;
     volatile uint8_t *txBuffer;
 } uartDevice_t;

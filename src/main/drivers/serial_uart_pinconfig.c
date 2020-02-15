@@ -53,18 +53,52 @@ void uartPinConfigure(const serialPinConfig_t *pSerialPinConfig)
         const uartHardware_t *hardware = &uartHardware[hindex];
         const UARTDevice_e device = hardware->device;
 
+        ioTag_t configuredTxTag = pSerialPinConfig->ioTagTx[device];
+        ioTag_t configuredRxTag = pSerialPinConfig->ioTagRx[device];
+
+
+        int configState = 0; // 0 = no swap information yet, positive = not swapped, negative = swapped
+
         for (int pindex = 0 ; pindex < UARTHARDWARE_MAX_PINS ; pindex++) {
-            if (hardware->rxPins[pindex].pin == pSerialPinConfig->ioTagRx[device]) {
-                uartdev->rx = hardware->rxPins[pindex];
+            ioTag_t defaultTxTag = hardware->txPins[pindex].pin;
+            ioTag_t defaultRxTag = hardware->rxPins[pindex].pin;
+
+            if (configState >= 0) {
+
+                if (configuredRxTag == defaultRxTag) {
+                    uartdev->rx = hardware->rxPins[pindex];
+                    ++configState;
+                }
+
+                if (configuredTxTag == defaultTxTag) {
+                    uartdev->tx = hardware->txPins[pindex];
+                    ++configState;
+                }
             }
 
-            if (hardware->txPins[pindex].pin == pSerialPinConfig->ioTagTx[device]) {
-                uartdev->tx = hardware->txPins[pindex];
+#ifdef USE_UART_TXRXSWAP
+            if (configState <= 0) {
+
+                if (configuredRxTag == defaultTxTag) {
+                    uartdev->rx = hardware->txPins[pindex];
+                    --configState;
+                }
+
+                if (configuredTxTag == defaultRxTag) {
+                    uartdev->tx = hardware->rxPins[pindex];
+                    --configState;
+                }
             }
+#endif
         }
 
-        if (uartdev->rx.pin || uartdev->tx.pin) {
+        if (configState != 0) {
             uartdev->hardware = hardware;
+#ifdef USE_UART_TXRXSWAP
+            if (configState < 0) {
+                uartdev->txrxPinSwapped = true;
+            }
+#endif
             uartDevmap[device] = uartdev++;
         }
     }
