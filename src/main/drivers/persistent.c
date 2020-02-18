@@ -120,7 +120,11 @@ void persistentObjectInit(void)
     uint32_t wasSoftReset;
 
 #ifdef STM32H7
+#if defined(STM32H745xx)
+    wasSoftReset = RCC->RSR & RCC_RSR_SFT1RSTF;
+#else
     wasSoftReset = RCC->RSR & RCC_RSR_SFTRSTF;
+#endif
 #else
     wasSoftReset = RCC->CSR & RCC_CSR_SFTRSTF;
 #endif

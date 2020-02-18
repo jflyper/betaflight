@@ -205,6 +205,22 @@ OPTIMISE_SIZE       := -Os
 LTO_FLAGS           := $(OPTIMISATION_BASE) $(OPTIMISE_DEFAULT)
 endif
 
+else ifeq ($(TARGET),$(filter $(TARGET),$(H745xI_TARGETS)))
+DEVICE_FLAGS       += -DSTM32H745xx
+# XXX Add CORE_CM7 for now
+DEVICE_FLAGS       +=  -DCORE_CM7
+DEFAULT_LD_SCRIPT   = $(LINKER_DIR)/stm32_flash_h743_2m.ld
+STARTUP_SRC         = startup_stm32h745xx.s
+MCU_FLASH_SIZE     := 2048
+DEVICE_FLAGS       += -DMAX_MPU_REGIONS=16
+
+ifeq ($(RAM_BASED),yes)
+FIRMWARE_SIZE      := 448
+# TARGET_FLASH now becomes the amount of RAM memory that is occupied by the firmware
+# and the maximum size of the data stored on the external storage device.
+MCU_FLASH_SIZE     := FIRMWARE_SIZE
+DEFAULT_LD_SCRIPT   = $(LINKER_DIR)/stm32_flash_h743_ram_based.ld
+endif
 else
 $(error Unknown MCU for H7 target)
 endif

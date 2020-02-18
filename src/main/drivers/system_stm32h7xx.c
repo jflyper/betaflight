@@ -54,6 +54,11 @@ void configureMasterClockOutputs(void)
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 }
 
+// XXX FIXME
+#if defined(STM32H745xx)
+#define RCC_RSR_SFTRSTF RCC_RSR_SFT1RSTF 
+#endif
+
 bool isMPUSoftReset(void)
 {
     if (cachedRccCsrValue & RCC_RSR_SFTRSTF)

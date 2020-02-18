@@ -61,6 +61,8 @@
   * @{
   */
 
+//#include "platform.h"
+
 #include "stm32h7xx.h"
 #include "drivers/system.h"
 #include "platform.h"
@@ -251,7 +253,12 @@ static void SystemClockHSE_Config(void)
     }
 #endif
 
-    pllConfig_t *pll1Config = (HAL_GetREVID() == REV_ID_V) ? &pll1ConfigRevV : &pll1ConfigRevY;
+    pllConfig_t *pll1Config;
+#if defined(STM32H745xx)
+    pll1Config = &pll1ConfigRevV; // H745 is equivalent to H743 Rev.V
+#else
+    pll1Config = (HAL_GetREVID() == REV_ID_V) ? &pll1ConfigRevV : &pll1ConfigRevY;
+#endif
 
     // Configure voltage scale.
     // It has been pre-configured at PWR_REGULATOR_VOLTAGE_SCALE1,
@@ -370,10 +377,15 @@ void SystemClock_Config(void)
 {
     // Configure power supply
 
-    HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
+    /**Supply configuration update enable */
 
-    // Pre-configure voltage scale to PWR_REGULATOR_VOLTAGE_SCALE1.
-    // SystemClockHSE_Config may configure PWR_REGULATOR_VOLTAGE_SCALE0.
+#if defined(STM32H745xx)
+    HAL_PWREx_ConfigSupply(PWR_DIRECT_SMPS_SUPPLY);
+#else
+    MODIFY_REG(PWR->CR3, PWR_CR3_SCUEN, 0);
+#endif
+
+    /**Configure the main internal regulator output voltage */
 
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 

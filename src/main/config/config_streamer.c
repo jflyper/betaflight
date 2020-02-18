@@ -70,7 +70,7 @@ uint8_t eepromData[EEPROM_SIZE];
 # elif defined(UNIT_TEST)
 #  define FLASH_PAGE_SIZE                 (0x400)
 // H7
-# elif defined(STM32H743xx) || defined(STM32H750xx)
+# elif defined(STM32H743xx) || defined(STM32H745xx) || defined(STM32H750xx)
 #  define FLASH_PAGE_SIZE                 ((uint32_t)0x20000) // 128K sectors
 // G4
 # elif defined(STM32G4)
@@ -272,7 +272,7 @@ static uint32_t getFLASHSectorForEEPROM(void)
     }
 }
 
-#elif defined(STM32H743xx) || defined(STM32G4)
+#elif defined(STM32H743xx) || defined(STM32H745xx) || defined(STM32G4)
 /*
 MCUs with uniform array of equal size sectors, handled in two banks having contiguous address.
 (Devices with non-contiguous flash layout is not currently useful anyways.)
@@ -292,7 +292,7 @@ bank operation mode. The code assumes dual bank operation, in which case the
 FLASH_BANK_SIZE constant is set to one half of the available flash size in HAL.
 */
 
-#if defined(STM32H743xx)
+#if defined(STM32H743xx) || defined(STM32H745xx)
 #define FLASH_PAGE_PER_BANK 8
 #elif defined(STM32G4)
 #define FLASH_PAGE_PER_BANK 128
