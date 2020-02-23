@@ -98,8 +98,10 @@ void systemInit(void)
 
 void systemReset(void)
 {
+#if !defined(DUAL_CORE) || (defined(DUAL_CORE) && defined(CORE_CM7))
     SCB_DisableDCache();
     SCB_DisableICache();
+#endif
 
     __disable_irq();
     NVIC_SystemReset();

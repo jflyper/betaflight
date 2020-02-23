@@ -537,12 +537,14 @@ SD_Error_t SD_WriteBlocks_DMA(uint64_t WriteAddress, uint32_t *buffer, uint32_t 
         return SD_ERROR; // unsupported.
     }
 
+#if !defined(DUAL_CORE) || (defined(DUAL_CORE) && defined(CORE_CM7))
     /*
      the SCB_CleanDCache_by_Addr() requires a 32-Byte aligned address
      adjust the address and the D-Cache size to clean accordingly.
      */
     uint32_t alignedAddr = (uint32_t)buffer &  ~0x1F;
     SCB_CleanDCache_by_Addr((uint32_t*)alignedAddr, NumberOfBlocks * BlockSize + ((uint32_t)buffer - alignedAddr));
+#endif
 
     HAL_StatusTypeDef status;
     if ((status = HAL_SD_WriteBlocks_DMA(&hsd1, (uint8_t *)buffer, WriteAddress, NumberOfBlocks)) != HAL_OK) {
@@ -606,12 +608,14 @@ void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
 
     SD_Handle.RXCplt = 0;
 
+#if !defined(DUAL_CORE) || (defined(DUAL_CORE) && defined(CORE_CM7))
     /*
        the SCB_InvalidateDCache_by_Addr() requires a 32-Byte aligned address,
        adjust the address and the D-Cache size to invalidate accordingly.
      */
     uint32_t alignedAddr = (uint32_t)sdReadParameters.buffer &  ~0x1F;
     SCB_InvalidateDCache_by_Addr((uint32_t*)alignedAddr, sdReadParameters.NumberOfBlocks * sdReadParameters.BlockSize + ((uint32_t)sdReadParameters.buffer - alignedAddr));
+#endif
 }
 
 void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)

@@ -53,6 +53,22 @@ static volatile uint32_t sysTickValStamp = 0;
 uint32_t cachedRccCsrValue;
 static uint32_t cpuClockFrequency = 0;
 
+void unlockDWT(void)
+{
+#if defined(DWT_LAR_UNLOCK_VALUE)
+
+#if defined(STM32F7) || (defined(STM32H7) && !defined(DUAL_CORE)) || (defined(STM32H7) && defined(DUAL_XORE) && defined(CORE_CM7))
+    DWT->LAR = DWT_LAR_UNLOCK_VALUE;
+
+#elif defined(STM32F3) || defined(STM32F4) || (defined(STM32H7) && defined(DUAL_XORE) && defined(CORE_CM4))
+    // Note: DWT_Type does not contain LAR member.
+    __O uint32_t *DWTLAR = (uint32_t *)(DWT_BASE + 0x0FB0);
+    *(DWTLAR) = DWT_LAR_UNLOCK_VALUE;
+#endif
+
+#endif
+}
+
 void cycleCounterInit(void)
 {
 #if defined(USE_HAL_DRIVER)
@@ -66,16 +82,7 @@ void cycleCounterInit(void)
 
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 
-#if defined(DWT_LAR_UNLOCK_VALUE)
-#if defined(STM32F7) || defined(STM32H7)
-    DWT->LAR = DWT_LAR_UNLOCK_VALUE;
-#elif defined(STM32F3) || defined(STM32F4)
-    // Note: DWT_Type does not contain LAR member.
-#define DWT_LAR
-    __O uint32_t *DWTLAR = (uint32_t *)(DWT_BASE + 0x0FB0);
-    *(DWTLAR) = DWT_LAR_UNLOCK_VALUE;
-#endif
-#endif
+    unlockDWT();
 
     DWT->CYCCNT = 0;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;

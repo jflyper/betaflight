@@ -679,9 +679,11 @@ void SystemInit (void)
 
     memProtConfigure(mpuRegions, mpuRegionCount);
 
+#if !defined(DUAL_CORE) || (defined(DUAL_CORE) && defined(CORE_CM7))
     // Enable CPU L1-Cache
     SCB_EnableICache();
     SCB_EnableDCache();
+#endif
 }
 
 /**

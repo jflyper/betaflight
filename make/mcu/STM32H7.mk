@@ -7,7 +7,10 @@ CFLAGS               += -DDEBUG_HARDFAULTS
 endif
 
 #CMSIS
-CMSIS_DIR      := $(ROOT)/lib/main/CMSIS
+#CMSIS_DIR      := $(ROOT)/lib/main/CMSIS
+CMSIS_DIR      := $(ROOT)/lib/main/STM32H7/Drivers/CMSIS
+#DSP_LIB        := $(ROOT)/lib/main/CMSIS/DSP
+DSP_LIB        := $(ROOT)/lib/main/STM32H7/Drivers/CMSIS/DSP
 
 #STDPERIPH
 STDPERIPH_DIR   = $(ROOT)/lib/main/STM32H7/Drivers/STM32H7xx_HAL_Driver
@@ -207,8 +210,15 @@ endif
 
 else ifeq ($(TARGET),$(filter $(TARGET),$(H745xI_TARGETS)))
 DEVICE_FLAGS       += -DSTM32H745xx
-# XXX Add CORE_CM7 for now
-DEVICE_FLAGS       +=  -DCORE_CM7
+# XXX Switch between CORE_CM7 and CORE_CM4 for fun
+#DEVICE_FLAGS       +=  -DCORE_CM7
+DEVICE_FLAGS       +=  -DCORE_CM4
+# Override ARCH_FLAGS for CORE_CM4
+ARCH_FLAGS      = -mthumb -mcpu=cortex-m4 -march=armv7e-m -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -Wdouble-promotion
+# Override math def
+#DEVICE_FLAGS += -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -D__FPU_PRESENT=1 -DUNALIGNED_SUPPORT_DISABLE -DARM_MATH_CM7
+DEVICE_FLAGS += -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -D__FPU_PRESENT=1 -DUNALIGNED_SUPPORT_DISABLE -DARM_MATH_CM4
+
 DEFAULT_LD_SCRIPT   = $(LINKER_DIR)/stm32_flash_h743_2m.ld
 STARTUP_SRC         = startup_stm32h745xx.s
 MCU_FLASH_SIZE     := 2048
@@ -296,6 +306,4 @@ endif
 #            msc/emfat_file.c
 #endif
 
-DSP_LIB := $(ROOT)/lib/main/CMSIS/DSP
-DEVICE_FLAGS += -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -D__FPU_PRESENT=1 -DUNALIGNED_SUPPORT_DISABLE -DARM_MATH_CM7
 
